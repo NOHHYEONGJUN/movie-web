@@ -60,9 +60,9 @@ const Header = () => {
               홈
             </Link>
             <Link 
-              to="/trending" 
+              to="/popular" 
               className="text-white hover:text-gray-300"
-              onClick={(e) => handleNavClick(e, '/trending')}
+              onClick={(e) => handleNavClick(e, '/popular')}
             >
               대세 콘텐츠
             </Link>

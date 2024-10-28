@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, Star, Calendar, Clock, TrendingUp, Zap, Film } from 'lucide-react';
+import { Heart, Star, Calendar, TrendingUp, Zap, Film } from 'lucide-react';
 import Header from '../components/common/header';
 import { 
   getURL4PopularMovies, 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, ArrowUpDown, Calendar, Star } from 'lucide-react';
+import { Heart, ArrowUpDown, Calendar, Star, Grid, Table2 } from 'lucide-react';
 import Header from '../components/common/header';
 
 const RECOMMENDED_MOVIES_KEY = 'recommendedMovies';
@@ -63,14 +63,14 @@ const WishlistPage = () => {
            <img 
              src={movie.image} 
              alt={movie.title}
-             className="w-[300px] h-[450px] object-cover rounded-md"
+             className="w-[300px] h-[450px] object-cover rounded-md shadow-lg"
            />
            <div className="absolute inset-0 bg-black/60 opacity-0 
              group-hover:opacity-100 transition-opacity duration-300 ease-in-out rounded-md">
              <div className="absolute inset-0 p-4 flex flex-col justify-between pt-14">
                <div className="space-y-2">
                  <div className="flex items-center justify-between">
-                   <h3 className="text-white font-bold text-lg">{movie.title}</h3>
+                   <h3 className="text-white font-bold text-lg line-clamp-2">{movie.title}</h3>
                    <button
                      onClick={(e) => {
                        e.stopPropagation();
@@ -124,19 +124,19 @@ const WishlistPage = () => {
            <th className="px-4 py-4 text-center w-40">
              <span className="text-lg">포스터</span>
            </th>
-           <th className="px-4 py-4 cursor-pointer">
+           <th className="px-4 py-4 cursor-pointer" onClick={() => handleSort('title')}>
              <div className="flex items-center justify-center gap-2">
                <span className="text-lg">제목</span>
                <ArrowUpDown className={`w-5 h-5 ${sortConfig.key === 'title' ? 'text-blue-500' : ''}`} />
              </div>
            </th>
-           <th className="px-4 py-4 cursor-pointer w-40">
+           <th className="px-4 py-4 cursor-pointer w-40" onClick={() => handleSort('release_date')}>
              <div className="flex items-center justify-center gap-2">
                <span className="text-lg">개봉일</span>
                <ArrowUpDown className={`w-5 h-5 ${sortConfig.key === 'release_date' ? 'text-blue-500' : ''}`} />
              </div>
            </th>
-           <th className="px-4 py-4 cursor-pointer w-36">
+           <th className="px-4 py-4 cursor-pointer w-36" onClick={() => handleSort('vote_average')}>
              <div className="flex items-center justify-center gap-2">
                <span className="text-lg">평점</span>
                <ArrowUpDown className={`w-5 h-5 ${sortConfig.key === 'vote_average' ? 'text-blue-500' : ''}`} />
@@ -157,7 +157,7 @@ const WishlistPage = () => {
                <img 
                  src={movie.image} 
                  alt={movie.title}
-                 className="w-28 h-40 object-cover rounded-lg mx-auto"
+                 className="w-28 h-40 object-cover rounded-lg mx-auto shadow-lg"
                  loading="lazy"
                />
              </td>
@@ -211,22 +211,27 @@ const WishlistPage = () => {
          <div className="flex items-center space-x-4">
            <button
              onClick={() => setViewMode('table')}
-             className={`px-4 py-2 rounded ${viewMode === 'table' ? 'bg-gray-800' : 'bg-gray-900'}`}
+             className={`px-4 py-2 rounded flex items-center gap-2
+               ${viewMode === 'table' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
            >
-             테이블 뷰
+             <Table2 className="w-5 h-5" />
+             <span className="hidden sm:inline">테이블 뷰</span>
            </button>
            <button
              onClick={() => setViewMode('grid')}
-             className={`px-4 py-2 rounded ${viewMode === 'grid' ? 'bg-gray-800' : 'bg-gray-900'}`}
+             className={`px-4 py-2 rounded flex items-center gap-2
+               ${viewMode === 'grid' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
            >
-             그리드 뷰
+             <Grid className="w-5 h-5" />
+             <span className="hidden sm:inline">그리드 뷰</span>
            </button>
          </div>
        </div>
 
        {recommendedMovies.length === 0 ? (
          <div className="text-center py-12">
-           <p className="text-gray-400">아직 찜한 영화가 없습니다.</p>
+           <Heart className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+           <p className="text-gray-400 text-lg">아직 찜한 영화가 없습니다.</p>
          </div>
        ) : (
          viewMode === 'table' ? <TableView /> : <GridView />
