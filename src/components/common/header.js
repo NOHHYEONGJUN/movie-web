@@ -25,9 +25,19 @@ const Header = () => {
 
   const handleProfileClick = () => {
     if (!isAuthenticated) {
-      navigate('/auth');
+      navigate('/signin');
     } else {
       setShowProfileMenu(!showProfileMenu);
+    }
+  };
+
+  const handleNavClick = (e, path) => {
+    // 로그인이 필요한 페이지 목록
+    const authRequiredPaths = ['/my-list'];
+    
+    if (!isAuthenticated && authRequiredPaths.includes(path)) {
+      e.preventDefault();
+      navigate('/signin');
     }
   };
 
@@ -40,23 +50,37 @@ const Header = () => {
             NETFLIX
           </Link>
           
-          {/* Navigation Links - 로그인된 경우만 표시 */}
-          {isAuthenticated && (
-            <div className="flex space-x-6">
-              <Link to="/" className="text-white hover:text-gray-300">
-                홈
-              </Link>
-              <Link to="/trending" className="text-white hover:text-gray-300">
-                대세 콘텐츠
-              </Link>
-              <Link to="/my-list" className="text-white hover:text-gray-300">
-                내가 찜한 리스트
-              </Link>
-              <Link to="/browse" className="text-white hover:text-gray-300">
-                찾아보기
-              </Link>
-            </div>
-          )}
+          {/* Navigation Links - 항상 표시 */}
+          <div className="flex space-x-6">
+            <Link 
+              to="/" 
+              className="text-white hover:text-gray-300"
+              onClick={(e) => handleNavClick(e, '/')}
+            >
+              홈
+            </Link>
+            <Link 
+              to="/trending" 
+              className="text-white hover:text-gray-300"
+              onClick={(e) => handleNavClick(e, '/trending')}
+            >
+              대세 콘텐츠
+            </Link>
+            <Link 
+              to="/wishlist" 
+              className="text-white hover:text-gray-300"
+              onClick={(e) => handleNavClick(e, '/wishlist')}
+            >
+              내가 찜한 리스트
+            </Link>
+            <Link 
+              to="/browse" 
+              className="text-white hover:text-gray-300"
+              onClick={(e) => handleNavClick(e, '/browse')}
+            >
+              찾아보기
+            </Link>
+          </div>
         </div>
 
         {/* Right Side Icons - 로그인된 경우만 표시 */}

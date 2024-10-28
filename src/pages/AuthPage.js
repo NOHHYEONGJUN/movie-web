@@ -17,12 +17,10 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 이미 로그인된 사용자 리다이렉트
     if (isAuthenticated) {
       navigate('/');
     }
 
-    // 저장된 이메일 불러오기
     const savedEmail = localStorage.getItem('savedEmail');
     if (savedEmail) {
       setFormData(prev => ({
@@ -131,8 +129,8 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="bg-black/75 p-8 md:p-16 rounded-md w-full max-w-2xl">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 sm:px-6 md:px-8">
+      <div className="bg-black/75 p-6 sm:p-8 md:p-16 rounded-md w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={isLogin ? 'login' : 'signup'}
@@ -141,13 +139,13 @@ const AuthPage = () => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <h1 className="text-white text-4xl font-bold mb-12 text-center">
+            <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 text-center">
               {isLogin ? '로그인' : '회원가입'}
             </h1>
   
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
               {errors.auth && (
-                <div className="bg-red-500/20 text-red-500 p-4 rounded text-center">
+                <div className="bg-red-500/20 text-red-500 p-3 sm:p-4 rounded text-center text-sm sm:text-base">
                   {errors.auth}
                 </div>
               )}
@@ -159,11 +157,11 @@ const AuthPage = () => {
                   placeholder="이메일 주소"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-800 text-white px-6 py-4 rounded-md text-lg
+                  className="w-full bg-gray-800 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-md text-base sm:text-lg
                     placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.email}</p>
                 )}
               </div>
   
@@ -174,11 +172,11 @@ const AuthPage = () => {
                   placeholder="비밀번호"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-800 text-white px-6 py-4 rounded-md text-lg
+                  className="w-full bg-gray-800 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-md text-base sm:text-lg
                     placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
                 {errors.password && (
-                  <p className="text-red-500 text-sm mt-2">{errors.password}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.password}</p>
                 )}
               </div>
   
@@ -190,17 +188,17 @@ const AuthPage = () => {
                     placeholder="비밀번호 확인"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full bg-gray-800 text-white px-6 py-4 rounded-md text-lg
+                    className="w-full bg-gray-800 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-md text-base sm:text-lg
                       placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
                   />
                   {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-2">{errors.confirmPassword}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.confirmPassword}</p>
                   )}
                 </div>
               )}
   
               {isLogin && (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -208,10 +206,10 @@ const AuthPage = () => {
                       id="saveEmail"
                       checked={formData.saveEmail}
                       onChange={handleInputChange}
-                      className="w-5 h-5 bg-gray-800 border-gray-600 rounded
+                      className="w-4 sm:w-5 h-4 sm:h-5 bg-gray-800 border-gray-600 rounded
                         focus:ring-2 focus:ring-red-600"
                     />
-                    <label htmlFor="saveEmail" className="text-gray-300 ml-3 text-base">
+                    <label htmlFor="saveEmail" className="text-gray-300 ml-3 text-sm sm:text-base">
                       아이디 저장
                     </label>
                   </div>
@@ -223,10 +221,10 @@ const AuthPage = () => {
                       id="keepLoggedIn"
                       checked={formData.keepLoggedIn}
                       onChange={handleInputChange}
-                      className="w-5 h-5 bg-gray-800 border-gray-600 rounded
+                      className="w-4 sm:w-5 h-4 sm:h-5 bg-gray-800 border-gray-600 rounded
                         focus:ring-2 focus:ring-red-600"
                     />
-                    <label htmlFor="keepLoggedIn" className="text-gray-300 ml-3 text-base">
+                    <label htmlFor="keepLoggedIn" className="text-gray-300 ml-3 text-sm sm:text-base">
                       로그인 상태 유지
                     </label>
                   </div>
@@ -235,14 +233,14 @@ const AuthPage = () => {
   
               <button
                 type="submit"
-                className="w-full bg-red-600 text-white py-4 rounded-md text-lg
-                  hover:bg-red-700 transition-colors font-medium mt-8"
+                className="w-full bg-red-600 text-white py-3 sm:py-4 rounded-md text-base sm:text-lg
+                  hover:bg-red-700 transition-colors font-medium mt-6 sm:mt-8"
               >
                 {isLogin ? '로그인' : '회원가입'}
               </button>
             </form>
   
-            <p className="text-gray-400 mt-6 text-center text-base">
+            <p className="text-gray-400 mt-6 text-center text-sm sm:text-base">
               {isLogin ? '처음이신가요?' : '이미 계정이 있으신가요?'}
               <button
                 onClick={() => setIsLogin(!isLogin)}
