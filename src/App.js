@@ -3,7 +3,7 @@ import MainPage from './pages/MainPage';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/movie-web">
       <Routes>
         <Route path="/" element={<MainPage />} />
       </Routes>
