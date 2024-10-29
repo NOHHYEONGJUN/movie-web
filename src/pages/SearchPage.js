@@ -117,7 +117,7 @@ const SearchPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [API_KEY, searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode]);
+  }, [searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode]);
 
   // 뷰 모드 변경 시 초기화
   useEffect(() => {

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, Star, Calendar, Grid, Table2, ArrowUp } from 'lucide-react';
+import { Heart, Star, Calendar, Grid, Table2 } from 'lucide-react';
 import Header from '../components/common/header';
 import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { getURL4PopularMovies, fetchMovies } from '../api/movieApi';
 import { 
@@ -126,97 +127,6 @@ const PopularPage = () => {
   useEffect(() => {
     fetchMovieData(page);
   }, [page, viewMode, fetchMovieData]);
-
-  const GridView = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-6">
-      {movies.map((movie, index) => {
-        if (movies.length === index + 1) {
-          return (
-            <div ref={lastMovieElementRef} key={`${movie.id}-${index}`} className="relative group">
-              <div className="relative transform-gpu transition-transform duration-300 hover:scale-105">
-                <img 
-                  src={movie.image} 
-                  alt={movie.title}
-                  className={`w-full aspect-[2/3] object-cover rounded-lg shadow-lg
-                    ${isMovieRecommended(movie.id) ? 'ring-4 ring-rose-500' : ''}`}
-                />
-                <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 
-                  transition-opacity duration-300 rounded-lg p-4 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold mb-2">{movie.title}</h3>
-                    <p className="text-sm text-gray-300 line-clamp-3">{movie.overview}</p>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm">{movie.release_date}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span>{movie.vote_average.toFixed(1)}</span>
-                      </div>
-                      <button
-                        onClick={(e) => toggleRecommendation(movie, e)}
-                        className={`p-2 rounded-full transition-colors
-                          ${isMovieRecommended(movie.id) ? 'bg-rose-500 hover:bg-rose-600' : 'bg-gray-700 hover:bg-gray-600'}`}
-                      >
-                        <Heart className={`w-5 h-5 ${isMovieRecommended(movie.id) ? 'fill-white' : ''}`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        }
-        return (
-          <div key={`${movie.id}-${index}`} className="relative group">
-            <div className="relative transform-gpu transition-transform duration-300 hover:scale-105">
-              <img 
-                src={movie.image} 
-                alt={movie.title}
-                className={`w-full aspect-[2/3] object-cover rounded-lg shadow-lg
-                  ${isMovieRecommended(movie.id) ? 'ring-4 ring-rose-500' : ''}`}
-              />
-              <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 
-                transition-opacity duration-300 rounded-lg p-4 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg font-bold mb-2">{movie.title}</h3>
-                  <p className="text-sm text-gray-300 line-clamp-3">{movie.overview}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="w-4 h-4" />
-                    <span className="text-sm">{movie.release_date}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span>{movie.vote_average.toFixed(1)}</span>
-                    </div>
-                    <button
-                      onClick={(e) => toggleRecommendation(movie, e)}
-                      className={`p-2 rounded-full transition-colors
-                        ${isMovieRecommended(movie.id) ? 'bg-rose-500 hover:bg-rose-600' : 'bg-gray-700 hover:bg-gray-600'}`}
-                    >
-                      <Heart className={`w-5 h-5 ${isMovieRecommended(movie.id) ? 'fill-white' : ''}`} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  const LoadingSpinner = () => (
-    <div className="flex justify-center items-center py-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-black text-white">
