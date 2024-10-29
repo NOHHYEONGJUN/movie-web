@@ -85,17 +85,6 @@ const Header = () => {
 
         {/* Right Side Icons - 로그인된 경우만 표시 */}
         <div className="flex items-center space-x-6">
-          {isAuthenticated && (
-            <>
-              <button aria-label="검색" className="text-white hover:text-gray-300">
-                <Search className="w-5 h-5" />
-              </button>
-              <button aria-label="알림" className="text-white hover:text-gray-300">
-                <Bell className="w-5 h-5" />
-              </button>
-            </>
-          )}
-          
           {/* 프로필 버튼 */}
           <div className="relative" ref={menuRef}>
             <button
