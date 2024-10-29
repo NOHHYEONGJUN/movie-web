@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Grid, Table2 } from 'lucide-react';
-import Header from '../components/common/header';
+import { PageLayout } from '../components/common/PageLayout';
 import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { PaginationControls } from '../components/common/PaginationControls';
 import { getURL4PopularMovies, fetchMovies } from '../api/movieApi';
+import { RECOMMENDED_MOVIES_KEY, IMAGE_BASE_URL, GENRES } from '../constants/movieConstants';
 
-const RECOMMENDED_MOVIES_KEY = 'recommendedMovies';
-const ITEMS_PER_PAGE_TABLE = 5; // 테이블 뷰의 페이지당 아이템 수
-const ITEMS_PER_PAGE_GRID = 20; // 그리드 뷰의 페이지당 아이템 수
+const ITEMS_PER_PAGE_TABLE = 5;
+const ITEMS_PER_PAGE_GRID = 20;
 
 const PopularPage = () => {
-  // 상태 관리
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,17 +22,9 @@ const PopularPage = () => {
   const observer = useRef();
   
   const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
-  const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
   const getGenreName = (genreId) => {
-    const genres = {
-      28: '액션', 12: '모험', 16: '애니메이션', 35: '코미디',
-      80: '범죄', 99: '다큐멘터리', 18: '드라마', 10751: '가족',
-      14: '판타지', 36: '역사', 27: '공포', 10402: '음악',
-      9648: '미스터리', 10749: '로맨스', 878: 'SF', 10770: 'TV 영화',
-      53: '스릴러', 10752: '전쟁', 37: '서부'
-    };
-    return genres[genreId] || '';
+    return GENRES[genreId] || '';
   };
 
   useEffect(() => {
@@ -123,71 +113,58 @@ const PopularPage = () => {
     fetchMovieData(page);
   }, [page, viewMode, fetchMovieData]);
 
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      <main className="container mx-auto px-2 sm:px-4 pt-24 pb-12">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">대세 콘텐츠</h1>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => handleViewModeChange('table')}
-              className={`px-4 py-2 rounded flex items-center gap-2
-                ${viewMode === 'table' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
-            >
-              <Table2 className="w-5 h-5" />
-              <span className="hidden sm:inline">테이블 뷰</span>
-            </button>
-            <button
-              onClick={() => handleViewModeChange('grid')}
-              className={`px-4 py-2 rounded flex items-center gap-2
-                ${viewMode === 'grid' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
-            >
-              <Grid className="w-5 h-5" />
-              <span className="hidden sm:inline">그리드 뷰</span>
-            </button>
-          </div>
+  const renderContent = () => {
+    if (error) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-red-500 text-lg">{error}</p>
         </div>
+      );
+    }
 
-        {error ? (
-          <div className="text-center py-12">
-            <p className="text-red-500 text-lg">{error}</p>
-          </div>
-        ) : (
+    return (
+      <>
+        {viewMode === 'table' ? (
           <>
-            {viewMode === 'table' ? (
-              <>
-                <MovieTableView
-                  movies={movies}
-                  onToggleRecommendation={toggleRecommendation}
-                  isMovieRecommended={isMovieRecommended}
-                  showSortButtons={false}
+            <MovieTableView
+              movies={movies}
+              onToggleRecommendation={toggleRecommendation}
+              isMovieRecommended={isMovieRecommended}
+              showSortButtons={false}
+            />
+            {!isLoading && totalPages > 0 && (
+              <div className="mt-6">
+                <PaginationControls
+                  page={page}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
                 />
-                {!isLoading && totalPages > 0 && (
-                  <div className="mt-6">
-                    <PaginationControls
-                      page={page}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                    />
-                  </div>
-                )}
-              </>
-            ) : (
-              <MovieGridView
-                movies={movies}
-                onToggleRecommendation={toggleRecommendation}
-                isMovieRecommended={isMovieRecommended}
-                scrollRef={lastMovieElementRef}
-              />
+              </div>
             )}
-            
-            {isLoading && <LoadingSpinner />}
           </>
+        ) : (
+          <MovieGridView
+            movies={movies}
+            onToggleRecommendation={toggleRecommendation}
+            isMovieRecommended={isMovieRecommended}
+            scrollRef={lastMovieElementRef}
+          />
         )}
-      </main>
+        {isLoading && <LoadingSpinner />}
+      </>
+    );
+  };
+
+  return (
+    <PageLayout
+      title="대세 콘텐츠"
+      viewMode={viewMode}
+      onViewModeChange={handleViewModeChange}
+      rightContent={null}
+    >
+      {renderContent()}
       <ScrollToTopButton />
-    </div>
+    </PageLayout>
   );
 };
 
