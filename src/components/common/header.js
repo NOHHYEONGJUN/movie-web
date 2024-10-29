@@ -33,7 +33,7 @@ const Header = () => {
 
   const handleNavClick = (e, path) => {
     // 로그인이 필요한 페이지 목록
-    const authRequiredPaths = ['/my-list'];
+    const authRequiredPaths = ['/wishlist'];
     
     if (!isAuthenticated && authRequiredPaths.includes(path)) {
       e.preventDefault();
@@ -74,9 +74,9 @@ const Header = () => {
               내가 찜한 리스트
             </Link>
             <Link 
-              to="/browse" 
+              to="/search" 
               className="text-white hover:text-gray-300"
-              onClick={(e) => handleNavClick(e, '/browse')}
+              onClick={(e) => handleNavClick(e, '/search')}
             >
               찾아보기
             </Link>
