@@ -7,10 +7,10 @@ const MovieTableView = ({
   isMovieRecommended, 
   sortConfig, 
   onSort,
-  showSortButtons = true  // 정렬 버튼 표시 여부 (검색 페이지에서는 false로 설정)
+  showSortButtons = true
 }) => {
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-800">
+    <div className="rounded-lg border border-gray-800 bg-gray-900/50">
       <table className="w-full text-sm">
         <thead className="text-base uppercase bg-gray-900">
           <tr>
@@ -52,9 +52,9 @@ const MovieTableView = ({
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-800">
           {movies.map((movie) => (
-            <tr key={movie.id} className="border-b border-gray-800 bg-gray-900/50 hover:bg-gray-900">
+            <tr key={movie.id} className="bg-transparent hover:bg-gray-900/70">
               <td className="px-4 py-6">
                 <img 
                   src={movie.image} 
@@ -69,7 +69,7 @@ const MovieTableView = ({
                   <p className="text-sm text-gray-400 line-clamp-2 max-w-xl">{movie.overview}</p>
                 </div>
               </td>
-              <td className="px-4 py-6 text-lg">{movie.release_date}</td>
+              <td className="px-4 py-6 text-lg text-center">{movie.release_date}</td>
               <td className="px-4 py-6">
                 <div className="flex items-center justify-center space-x-1">
                   <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />

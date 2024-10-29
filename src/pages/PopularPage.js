@@ -5,20 +5,15 @@ import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
+import { PaginationControls } from '../components/common/PaginationControls';
 import { getURL4PopularMovies, fetchMovies } from '../api/movieApi';
-import { 
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "../components/ui/pagination";
 
 const RECOMMENDED_MOVIES_KEY = 'recommendedMovies';
+const ITEMS_PER_PAGE_TABLE = 5; // 테이블 뷰의 페이지당 아이템 수
+const ITEMS_PER_PAGE_GRID = 20; // 그리드 뷰의 페이지당 아이템 수
 
 const PopularPage = () => {
+  // 상태 관리
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -33,25 +28,11 @@ const PopularPage = () => {
 
   const getGenreName = (genreId) => {
     const genres = {
-      28: '액션',
-      12: '모험',
-      16: '애니메이션',
-      35: '코미디',
-      80: '범죄',
-      99: '다큐멘터리',
-      18: '드라마',
-      10751: '가족',
-      14: '판타지',
-      36: '역사',
-      27: '공포',
-      10402: '음악',
-      9648: '미스터리',
-      10749: '로맨스',
-      878: 'SF',
-      10770: 'TV 영화',
-      53: '스릴러',
-      10752: '전쟁',
-      37: '서부'
+      28: '액션', 12: '모험', 16: '애니메이션', 35: '코미디',
+      80: '범죄', 99: '다큐멘터리', 18: '드라마', 10751: '가족',
+      14: '판타지', 36: '역사', 27: '공포', 10402: '음악',
+      9648: '미스터리', 10749: '로맨스', 878: 'SF', 10770: 'TV 영화',
+      53: '스릴러', 10752: '전쟁', 37: '서부'
     };
     return genres[genreId] || '';
   };
@@ -84,20 +65,28 @@ const PopularPage = () => {
     setError(null);
 
     try {
-      const response = await fetchMovies(getURL4PopularMovies(API_KEY, pageNum));
+      const itemsPerPage = viewMode === 'table' ? ITEMS_PER_PAGE_TABLE : ITEMS_PER_PAGE_GRID;
+      const url = getURL4PopularMovies(API_KEY, pageNum);
+      
+      const response = await fetchMovies(url);
       const processedMovies = response.results.map(movie => ({
         ...movie,
         image: movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : "/api/placeholder/300/169",
         genres: movie.genre_ids.map(getGenreName).filter(Boolean)
       }));
 
+      const limitedMovies = viewMode === 'table' 
+        ? processedMovies.slice(0, ITEMS_PER_PAGE_TABLE)
+        : processedMovies;
+
       if (viewMode === 'grid' && pageNum > 1) {
-        setMovies(prev => [...prev, ...processedMovies]);
+        setMovies(prev => [...prev, ...limitedMovies]);
       } else {
-        setMovies(processedMovies);
+        setMovies(limitedMovies);
       }
       
-      setTotalPages(response.total_pages);
+      const adjustedTotalPages = Math.ceil(response.total_results / itemsPerPage);
+      setTotalPages(adjustedTotalPages);
     } catch (err) {
       setError('영화 데이터를 불러오는데 실패했습니다.');
       console.error(err);
@@ -105,6 +94,17 @@ const PopularPage = () => {
       setIsLoading(false);
     }
   }, [API_KEY, viewMode]);
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo(0, 0);
+  };
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    setPage(1);
+    setMovies([]);
+  };
 
   const lastMovieElementRef = useCallback(node => {
     if (isLoading) return;
@@ -119,11 +119,6 @@ const PopularPage = () => {
     if (node) observer.current.observe(node);
   }, [isLoading, page, totalPages, viewMode]);
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-    window.scrollTo(0, 0);
-  };
-
   useEffect(() => {
     fetchMovieData(page);
   }, [page, viewMode, fetchMovieData]);
@@ -136,7 +131,7 @@ const PopularPage = () => {
           <h1 className="text-3xl font-bold">대세 콘텐츠</h1>
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setViewMode('table')}
+              onClick={() => handleViewModeChange('table')}
               className={`px-4 py-2 rounded flex items-center gap-2
                 ${viewMode === 'table' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
             >
@@ -144,7 +139,7 @@ const PopularPage = () => {
               <span className="hidden sm:inline">테이블 뷰</span>
             </button>
             <button
-              onClick={() => setViewMode('grid')}
+              onClick={() => handleViewModeChange('grid')}
               className={`px-4 py-2 rounded flex items-center gap-2
                 ${viewMode === 'grid' ? 'bg-white text-black' : 'bg-gray-800 text-white'}`}
             >
@@ -168,60 +163,18 @@ const PopularPage = () => {
                   isMovieRecommended={isMovieRecommended}
                   showSortButtons={false}
                 />
-                {!isLoading && (
+                {!isLoading && totalPages > 0 && (
                   <div className="mt-6">
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationPrevious 
-                            onClick={() => handlePageChange(Math.max(1, page - 1))}
-                            disabled={page === 1}
-                          />
-                        </PaginationItem>
-                        
-                        {[...Array(Math.min(5, totalPages))].map((_, idx) => {
-                          const pageNum = idx + 1;
-                          return (
-                            <PaginationItem key={pageNum}>
-                              <PaginationLink
-                                onClick={() => handlePageChange(pageNum)}
-                                isActive={page === pageNum}
-                              >
-                                {pageNum}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
-                        
-                        {totalPages > 5 && (
-                          <>
-                            <PaginationItem>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink
-                                onClick={() => handlePageChange(totalPages)}
-                                isActive={page === totalPages}
-                              >
-                                {totalPages}
-                              </PaginationLink>
-                            </PaginationItem>
-                          </>
-                        )}
-                        
-                        <PaginationItem>
-                          <PaginationNext
-                            onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
-                            disabled={page === totalPages}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
+                    <PaginationControls
+                      page={page}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
                   </div>
                 )}
               </>
             ) : (
-                <MovieGridView
+              <MovieGridView
                 movies={movies}
                 onToggleRecommendation={toggleRecommendation}
                 isMovieRecommended={isMovieRecommended}
@@ -230,7 +183,6 @@ const PopularPage = () => {
             )}
             
             {isLoading && <LoadingSpinner />}
-
           </>
         )}
       </main>
