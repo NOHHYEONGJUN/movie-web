@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Heart, Star, Calendar, Grid, Table2, ArrowUp } from 'lucide-react';
 import Header from '../components/common/header';
+import MovieTableView from '../components/common/MovieTableView';
+import MovieGridView from '../components/common/MovieGridView';
+import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { getURL4PopularMovies, fetchMovies } from '../api/movieApi';
 import { 
   Pagination,
@@ -22,7 +25,6 @@ const PopularPage = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [viewMode, setViewMode] = useState('grid');
   const [recommendedMovies, setRecommendedMovies] = useState([]);
-  const [showTopButton, setShowTopButton] = useState(false);
   const observer = useRef();
   
   const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
@@ -115,19 +117,6 @@ const PopularPage = () => {
     
     if (node) observer.current.observe(node);
   }, [isLoading, page, totalPages, viewMode]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowTopButton(window.pageYOffset > 200);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -223,84 +212,6 @@ const PopularPage = () => {
     </div>
   );
 
-  const TableView = () => (
-    <div className="overflow-x-auto rounded-lg border border-gray-800">
-      <table className="w-full text-sm">
-        <thead className="text-base uppercase bg-gray-900">
-          <tr>
-            <th className="px-4 py-4 text-center w-40">
-              <span className="text-lg">포스터</span>
-            </th>
-            <th className="px-4 py-4 text-center">
-              <span className="text-lg">제목</span>
-            </th>
-            <th className="px-4 py-4 text-center w-40">
-              <span className="text-lg">개봉일</span>
-            </th>
-            <th className="px-4 py-4 text-center w-36">
-              <span className="text-lg">평점</span>
-            </th>
-            <th className="hidden md:table-cell px-4 py-4 text-center w-48">
-              <span className="text-lg">장르</span>
-            </th>
-            <th className="px-4 py-4 text-center w-48">
-              <span className="text-lg">찜</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="text-center">
-          {movies.map((movie) => (
-            <tr key={movie.id} className="border-b border-gray-800 bg-gray-900/50 hover:bg-gray-900">
-              <td className="px-4 py-6">
-                <img 
-                  src={movie.image} 
-                  alt={movie.title}
-                  className="w-28 h-40 object-cover rounded-lg mx-auto shadow-lg"
-                  loading="lazy"
-                />
-              </td>
-              <td className="px-4 py-6">
-                <div className="space-y-2">
-                  <p className="text-lg font-medium">{movie.title || movie.original_title}</p>
-                  <p className="text-sm text-gray-400 line-clamp-2 max-w-xl">{movie.overview}</p>
-                </div>
-              </td>
-              <td className="px-4 py-6 text-lg">{movie.release_date}</td>
-              <td className="px-4 py-6">
-                <div className="flex items-center justify-center space-x-1">
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  <span className="text-lg">{movie.vote_average?.toFixed(1)}</span>
-                </div>
-              </td>
-              <td className="hidden md:table-cell px-4 py-6">
-                <div className="flex flex-wrap gap-1 justify-center">
-                  {movie.genres?.map((genre, index) => (
-                    <span 
-                      key={index}
-                      className="bg-gray-700/50 text-white text-xs px-2 py-1 rounded"
-                    >
-                      {genre}
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td className="px-4 py-6">
-                <button
-                  onClick={(e) => toggleRecommendation(movie, e)}
-                  className={`p-3 rounded-full transition-colors mx-auto
-                    ${isMovieRecommended(movie.id) ? 'bg-rose-500 hover:bg-rose-600' : 'bg-gray-700 hover:bg-gray-600'}`}
-                  aria-label={isMovieRecommended(movie.id) ? '찜하기 취소' : '찜하기'}
-                >
-                  <Heart className={`w-6 h-6 ${isMovieRecommended(movie.id) ? 'fill-white' : ''}`} />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
   const LoadingSpinner = () => (
     <div className="flex justify-center items-center py-8">
       <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
@@ -341,7 +252,12 @@ const PopularPage = () => {
           <>
             {viewMode === 'table' ? (
               <>
-                <TableView />
+                <MovieTableView
+                  movies={movies}
+                  onToggleRecommendation={toggleRecommendation}
+                  isMovieRecommended={isMovieRecommended}
+                  showSortButtons={false}
+                />
                 {!isLoading && (
                   <div className="mt-6">
                     <Pagination>
@@ -395,24 +311,20 @@ const PopularPage = () => {
                 )}
               </>
             ) : (
-              <GridView />
+                <MovieGridView
+                movies={movies}
+                onToggleRecommendation={toggleRecommendation}
+                isMovieRecommended={isMovieRecommended}
+                scrollRef={lastMovieElementRef}
+              />
             )}
             
             {isLoading && <LoadingSpinner />}
 
-            {showTopButton && (
-              <button
-                onClick={scrollToTop}
-                className="fixed bottom-8 right-8 p-4 bg-white text-black rounded-full shadow-lg
-                  hover:bg-gray-100 transition-colors z-50"
-                aria-label="맨 위로 이동"
-              >
-                <ArrowUp className="w-6 h-6" />
-              </button>
-            )}
           </>
         )}
       </main>
+      <ScrollToTopButton />
     </div>
   );
 };

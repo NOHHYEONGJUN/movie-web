@@ -33,7 +33,7 @@ const Header = () => {
 
   const handleNavClick = (e, path) => {
     // 로그인이 필요한 페이지 목록
-    const authRequiredPaths = ['/my-list'];
+    const authRequiredPaths = ['/wishlist'];
     
     if (!isAuthenticated && authRequiredPaths.includes(path)) {
       e.preventDefault();
@@ -74,9 +74,9 @@ const Header = () => {
               내가 찜한 리스트
             </Link>
             <Link 
-              to="/browse" 
+              to="/search" 
               className="text-white hover:text-gray-300"
-              onClick={(e) => handleNavClick(e, '/browse')}
+              onClick={(e) => handleNavClick(e, '/search')}
             >
               찾아보기
             </Link>
@@ -85,17 +85,6 @@ const Header = () => {
 
         {/* Right Side Icons - 로그인된 경우만 표시 */}
         <div className="flex items-center space-x-6">
-          {isAuthenticated && (
-            <>
-              <button aria-label="검색" className="text-white hover:text-gray-300">
-                <Search className="w-5 h-5" />
-              </button>
-              <button aria-label="알림" className="text-white hover:text-gray-300">
-                <Bell className="w-5 h-5" />
-              </button>
-            </>
-          )}
-          
           {/* 프로필 버튼 */}
           <div className="relative" ref={menuRef}>
             <button
