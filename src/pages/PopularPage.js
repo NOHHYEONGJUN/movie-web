@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, Star, Calendar, Grid, Table2 } from 'lucide-react';
+import { Grid, Table2 } from 'lucide-react';
 import Header from '../components/common/header';
 import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
