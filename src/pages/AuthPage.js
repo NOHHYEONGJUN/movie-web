@@ -8,7 +8,6 @@ import axios from 'axios';
 const TMDB_API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 const AuthPage = () => {
-  const { isAuthenticated } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -31,7 +30,7 @@ const AuthPage = () => {
         saveEmail: true
       }));
     }
-  }, [isAuthenticated, navigate]);
+  }, []);
 
   const verifyTMDBApiKey = async () => {
     try {
@@ -94,33 +93,38 @@ const AuthPage = () => {
   const handleLogin = () => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const user = users.find(u => u.email === formData.email && u.password === formData.password);
-
+  
     if (user) {
       if (formData.saveEmail) {
         localStorage.setItem('savedEmail', formData.email);
       } else {
         localStorage.removeItem('savedEmail');
       }
-
+  
+      // 로그인 상태 저장
       localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
       if (!formData.keepLoggedIn) {
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('currentUser', JSON.stringify(user));
       }
 
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      const loginEvent = new CustomEvent('userLogin', { detail: user });
-      window.dispatchEvent(loginEvent);
-
+      // 로그인 이벤트 발생 전에 토스트 표시
       toast.success('로그인에 성공했습니다', {
         duration: 3000,
         position: 'top-center'
       });
-
+  
+      // 로그인 이벤트 발생
+      // const loginEvent = new CustomEvent('userLogin', { detail: user });
+      // window.dispatchEvent(loginEvent);
+  
+      // // 약간의 딜레이 후 페이지 이동
       setTimeout(() => {
         navigate('/');
-      }, 1000);
-
+      }, 1500);
+  
     } else {
       toast.error('이메일 또는 비밀번호가 일치하지 않습니다', {
         duration: 3000,

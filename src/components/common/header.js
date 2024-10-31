@@ -33,7 +33,7 @@ const Header = () => {
 
   const handleNavClick = (e, path) => {
     // 로그인이 필요한 페이지 목록
-    const authRequiredPaths = ['/wishlist'];
+    const authRequiredPaths = ['/wishlist', '/popular', '/search'];
     
     if (!isAuthenticated && authRequiredPaths.includes(path)) {
       e.preventDefault();

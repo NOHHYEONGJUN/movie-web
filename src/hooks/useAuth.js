@@ -5,33 +5,44 @@ import { useNavigate } from 'react-router-dom';
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = () => {
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      const currentUser = localStorage.getItem('currentUser');
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || 
+                        sessionStorage.getItem('isLoggedIn') === 'true';
+      const currentUser = localStorage.getItem('currentUser') || 
+                         sessionStorage.getItem('currentUser');
 
       if (isLoggedIn && currentUser) {
         setIsAuthenticated(true);
         setUser(JSON.parse(currentUser));
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
+      } 
+      // else {
+      //   setIsAuthenticated(false);
+      //   setUser(null);
+      // }
+      setIsLoading(false);
     };
 
     checkAuth();
 
-    const handleLogin = (event) => {
-      setIsAuthenticated(true);
-      setUser(event.detail);
+    // const handleLogin = (event) => {
+    //   setIsAuthenticated(true);
+    //   setUser(event.detail);
+    // };
+
+    const handleStorage = () => {
+      checkAuth();
     };
 
-    window.addEventListener('userLogin', handleLogin);
+    // window.addEventListener('userLogin', handleLogin);
+    window.addEventListener('storage', handleStorage);
 
     return () => {
-      window.removeEventListener('userLogin', handleLogin);
+      // window.removeEventListener('userLogin', handleLogin);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 
@@ -55,6 +66,7 @@ export const useAuth = () => {
   return {
     isAuthenticated,
     user,
-    logout
+    logout,
+    isLoading
   };
 };

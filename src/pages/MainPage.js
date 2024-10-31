@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Heart, Star, Calendar, TrendingUp, Zap, Film } from 'lucide-react';
 import Header from '../components/common/header';
 import MovieSection from '../components/main/MovieSection';
+
 import { 
   getURL4PopularMovies, 
   getURL4ReleaseMovies, 
