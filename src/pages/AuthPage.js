@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../hooks';
 import { Toaster, toast } from 'react-hot-toast';
 import axios from 'axios';
-
-const TMDB_API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    confirmPassword: '',
+    apiKey: '',
+    confirmApiKey: '',
     keepLoggedIn: false,
     saveEmail: false,
     termsAccepted: false
@@ -21,7 +18,6 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     const savedEmail = localStorage.getItem('savedEmail');
     if (savedEmail) {
       setFormData(prev => ({
@@ -32,10 +28,10 @@ const AuthPage = () => {
     }
   }, []);
 
-  const verifyTMDBApiKey = async () => {
+  const verifyTMDBApiKey = async (apiKey) => {
     try {
       const response = await axios.get(
-        `https://api.themoviedb.org/3/authentication/token/new?api_key=${TMDB_API_KEY}`
+        `https://api.themoviedb.org/3/authentication/token/new?api_key=${apiKey}`
       );
       return response.data.success;
     } catch (error) {
@@ -53,15 +49,13 @@ const AuthPage = () => {
       newErrors.email = '유효한 이메일 주소를 입력해주세요';
     }
 
-    if (!formData.password) {
-      newErrors.password = '비밀번호를 입력해주세요';
-    } else if (formData.password.length < 6) {
-      newErrors.password = '비밀번호는 최소 6자 이상이어야 합니다';
+    if (!formData.apiKey) {
+      newErrors.apiKey = 'API 키를 입력해주세요';
     }
 
     if (!isLogin) {
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = '비밀번호가 일치하지 않습니다';
+      if (formData.apiKey !== formData.confirmApiKey) {
+        newErrors.confirmApiKey = 'API 키가 일치하지 않습니다';
       }
       if (!formData.termsAccepted) {
         newErrors.terms = '필수 약관에 동의해주세요';
@@ -77,9 +71,10 @@ const AuthPage = () => {
 
     if (!validateForm()) return;
 
-    const isApiValid = await verifyTMDBApiKey();
+    const isApiValid = await verifyTMDBApiKey(formData.apiKey);
     if (!isApiValid) {
-      toast.error('API 인증에 실패했습니다');
+      toast.error('유효하지 않은 API 키입니다');
+      setErrors({ apiKey: '유효하지 않은 API 키입니다' });
       return;
     }
 
@@ -92,7 +87,7 @@ const AuthPage = () => {
 
   const handleLogin = () => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === formData.email && u.password === formData.password);
+    const user = users.find(u => u.email === formData.email && u.apiKey === formData.apiKey);
   
     if (user) {
       if (formData.saveEmail) {
@@ -101,36 +96,30 @@ const AuthPage = () => {
         localStorage.removeItem('savedEmail');
       }
   
-      // 로그인 상태 저장
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('currentUser', JSON.stringify(user));
+      localStorage.setItem('tmdb_api_key', formData.apiKey);
       
       if (!formData.keepLoggedIn) {
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('currentUser', JSON.stringify(user));
+        sessionStorage.setItem('tmdb_api_key', formData.apiKey);
       }
 
-      // 로그인 이벤트 발생 전에 토스트 표시
       toast.success('로그인에 성공했습니다', {
         duration: 3000,
         position: 'top-center'
       });
   
-      // 로그인 이벤트 발생
-      // const loginEvent = new CustomEvent('userLogin', { detail: user });
-      // window.dispatchEvent(loginEvent);
-  
-      // // 약간의 딜레이 후 페이지 이동
       setTimeout(() => {
         navigate('/');
       }, 1500);
-  
     } else {
-      toast.error('이메일 또는 비밀번호가 일치하지 않습니다', {
+      toast.error('이메일 또는 API 키가 일치하지 않습니다', {
         duration: 3000,
         position: 'top-center'
       });
-      setErrors({ auth: '이메일 또는 비밀번호가 일치하지 않습니다' });
+      setErrors({ auth: '이메일 또는 API 키가 일치하지 않습니다' });
     }
   };
 
@@ -149,7 +138,7 @@ const AuthPage = () => {
 
     const newUser = {
       email: formData.email,
-      password: formData.password,
+      apiKey: formData.apiKey,
       favoriteMovies: [],
       createdAt: new Date().toISOString()
     };
@@ -165,8 +154,8 @@ const AuthPage = () => {
     setIsLogin(true);
     setFormData({
       email: '',
-      password: '',
-      confirmPassword: '',
+      apiKey: '',
+      confirmApiKey: '',
       keepLoggedIn: false,
       saveEmail: false,
       termsAccepted: false
@@ -224,15 +213,15 @@ const AuthPage = () => {
               <div>
                 <input
                   type="password"
-                  name="password"
-                  placeholder="비밀번호"
-                  value={formData.password}
+                  name="apiKey"
+                  placeholder="TMDB API 키"
+                  value={formData.apiKey}
                   onChange={handleInputChange}
                   className="w-full bg-gray-800 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-md text-base sm:text-lg
                     placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
-                {errors.password && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.password}</p>
+                {errors.apiKey && (
+                  <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.apiKey}</p>
                 )}
               </div>
 
@@ -241,15 +230,15 @@ const AuthPage = () => {
                   <div>
                     <input
                       type="password"
-                      name="confirmPassword"
-                      placeholder="비밀번호 확인"
-                      value={formData.confirmPassword}
+                      name="confirmApiKey"
+                      placeholder="API 키 확인"
+                      value={formData.confirmApiKey}
                       onChange={handleInputChange}
                       className="w-full bg-gray-800 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-md text-base sm:text-lg
                         placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
                     />
-                    {errors.confirmPassword && (
-                      <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.confirmPassword}</p>
+                    {errors.confirmApiKey && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.confirmApiKey}</p>
                     )}
                   </div>
 
