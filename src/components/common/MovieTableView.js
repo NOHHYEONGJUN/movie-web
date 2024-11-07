@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, ArrowUpDown, Star } from 'lucide-react';
 
-const MovieTableView = ({ 
+const WishListTableView = ({ 
   movies, 
   onToggleRecommendation, 
   isMovieRecommended, 
@@ -109,4 +109,4 @@ const MovieTableView = ({
   );
 };
 
-export default MovieTableView;
+export default WishListTableView;

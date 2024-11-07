@@ -5,14 +5,19 @@ import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { PaginationControls } from '../components/common/PaginationControls';
 
 const RECOMMENDED_MOVIES_KEY = 'recommendedMovies';
+const ITEMS_PER_PAGE_TABLE = 5;
+const ITEMS_PER_PAGE_GRID = 20;
 
 const WishlistPage = () => {
   const [recommendedMovies, setRecommendedMovies] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'title', direction: 'asc' });
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState('grid');
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [displayedMovies, setDisplayedMovies] = useState([]);
 
   useEffect(() => {
     const loadRecommendedMovies = () => {
@@ -72,6 +77,30 @@ const WishlistPage = () => {
     return 0;
   });
 
+  // 페이지네이션 관련 계산
+  const itemsPerPage = viewMode === 'table' ? ITEMS_PER_PAGE_TABLE : ITEMS_PER_PAGE_GRID;
+  const totalPages = Math.ceil(sortedMovies.length / itemsPerPage);
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo(0, 0);
+  };
+
+  // 뷰 모드 변경 핸들러
+  const handleViewModeChange = (newMode) => {
+    setViewMode(newMode);
+    setPage(1);
+    window.scrollTo(0, 0);
+  };
+
+  // 현재 페이지에 표시할 영화 계산
+  useEffect(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setDisplayedMovies(sortedMovies.slice(startIndex, endIndex));
+  }, [page, itemsPerPage, sortedMovies]);
+
   const renderContent = () => {
     if (isLoading) {
       return <LoadingSpinner />;
@@ -86,21 +115,34 @@ const WishlistPage = () => {
       );
     }
 
-    return viewMode === 'table' ? (
-      <MovieTableView
-        movies={sortedMovies}
-        onToggleRecommendation={toggleRecommendation}
-        isMovieRecommended={() => true}
-        sortConfig={sortConfig}
-        onSort={handleSort}
-        showSortButtons={true}
-      />
-    ) : (
-      <MovieGridView
-        movies={sortedMovies}
-        onToggleRecommendation={toggleRecommendation}
-        isMovieRecommended={() => true}
-      />
+    return (
+      <>
+        {viewMode === 'table' ? (
+          <MovieTableView
+            movies={displayedMovies}
+            onToggleRecommendation={toggleRecommendation}
+            isMovieRecommended={() => true}
+            sortConfig={sortConfig}
+            onSort={handleSort}
+            showSortButtons={true}
+          />
+        ) : (
+          <MovieGridView
+            movies={displayedMovies}
+            onToggleRecommendation={toggleRecommendation}
+            isMovieRecommended={() => true}
+          />
+        )}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
+      </>
     );
   };
 
@@ -108,7 +150,7 @@ const WishlistPage = () => {
     <PageLayout
       title="내가 찜한 리스트"
       viewMode={viewMode}
-      onViewModeChange={setViewMode}
+      onViewModeChange={handleViewModeChange}
     >
       {renderContent()}
       <ScrollToTopButton />
