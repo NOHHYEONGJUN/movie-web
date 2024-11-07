@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, ArrowUpDown, Star } from 'lucide-react';
 
 const MovieTableView = ({ 
@@ -9,6 +9,50 @@ const MovieTableView = ({
   onSort,
   showSortButtons = true
 }) => {
+  const [visibleMovies, setVisibleMovies] = useState([]);
+
+  // 고정된 크기 상수
+  const DESKTOP_ROW_HEIGHT = 180; // 데스크톱 뷰에서 각 행의 고정 높이
+  const MOBILE_CARD_HEIGHT = 200; // 모바일 뷰에서 각 카드의 고정 높이
+  const HEADER_HEIGHT = 56; // 테이블 헤더 높이
+  const SORT_BUTTONS_HEIGHT = showSortButtons ? 64 : 0; // 정렬 버튼 영역 높이
+  const PAGINATION_HEIGHT = 56; // 페이지네이션 영역 높이
+  const TOP_NAV_HEIGHT = 64; // 상단 네비게이션 높이
+  const TITLE_SECTION_HEIGHT = 80; // 제목과 뷰 전환 버튼 영역 높이
+
+  // 화면 크기에 따라 보여줄 영화 수를 계산하는 함수
+  const calculateVisibleMovies = () => {
+    const windowHeight = window.innerHeight;
+    const fixedHeights = TOP_NAV_HEIGHT + TITLE_SECTION_HEIGHT + SORT_BUTTONS_HEIGHT + PAGINATION_HEIGHT;
+    
+    // 데스크톱 뷰일 때는 헤더 높이도 고려
+    const availableHeight = window.innerWidth >= 768 
+      ? windowHeight - fixedHeights - HEADER_HEIGHT
+      : windowHeight - fixedHeights;
+
+    // 모바일 뷰일 때 (md 브레이크포인트 768px 미만)
+    if (window.innerWidth < 768) {
+      const maxMovies = Math.floor(availableHeight / MOBILE_CARD_HEIGHT);
+      const optimalMovies = Math.max(1, maxMovies); // 최소 1개는 보이도록
+      setVisibleMovies(movies.slice(0, optimalMovies));
+    } else {
+      // 데스크톱 뷰일 때
+      const maxMovies = Math.floor(availableHeight / DESKTOP_ROW_HEIGHT);
+      const optimalMovies = Math.max(1, maxMovies); // 최소 1개는 보이도록
+      setVisibleMovies(movies.slice(0, optimalMovies));
+    }
+  };
+
+  // 윈도우 리사이즈 이벤트 처리
+  useEffect(() => {
+    calculateVisibleMovies();
+    const handleResize = () => {
+      calculateVisibleMovies();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [movies]);
+
   const SortButton = ({ label, sortKey }) => (
     <button 
       onClick={() => showSortButtons && onSort?.(sortKey)}
@@ -21,9 +65,8 @@ const MovieTableView = ({
     </button>
   );
 
-  // 모바일용 정렬 컨트롤
   const MobileSortControls = () => (
-    <div className="flex flex-wrap gap-2 p-4 md:hidden">
+    <div className="flex flex-wrap gap-2 p-4 md:hidden h-16">
       <SortButton label="제목순" sortKey="title" />
       <SortButton label="개봉일순" sortKey="release_date" />
       <SortButton label="평점순" sortKey="vote_average" />
@@ -31,111 +74,116 @@ const MovieTableView = ({
   );
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900/50">
-      {/* 모바일 정렬 컨트롤 */}
+    <div className="flex flex-col rounded-lg border border-gray-800 bg-gray-900/50">
       {showSortButtons && <MobileSortControls />}
 
       {/* 데스크톱 테이블 뷰 */}
-      <table className="hidden md:table w-full text-sm">
-        <thead className="text-base uppercase bg-gray-900">
-          <tr>
-            <th className="px-4 py-4 text-center w-40">
-              <span className="text-lg">포스터</span>
-            </th>
-            <th className={`px-4 py-4 ${showSortButtons ? 'cursor-pointer' : ''}`} 
-              onClick={() => showSortButtons && onSort?.('title')}>
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-lg">제목</span>
-                {showSortButtons && (
-                  <ArrowUpDown className={`w-5 h-5 ${sortConfig?.key === 'title' ? 'text-blue-500' : ''}`} />
-                )}
-              </div>
-            </th>
-            <th className={`px-4 py-4 w-40 ${showSortButtons ? 'cursor-pointer' : ''}`}
-              onClick={() => showSortButtons && onSort?.('release_date')}>
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-lg">개봉일</span>
-                {showSortButtons && (
-                  <ArrowUpDown className={`w-5 h-5 ${sortConfig?.key === 'release_date' ? 'text-blue-500' : ''}`} />
-                )}
-              </div>
-            </th>
-            <th className={`px-4 py-4 w-36 ${showSortButtons ? 'cursor-pointer' : ''}`}
-              onClick={() => showSortButtons && onSort?.('vote_average')}>
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-lg">평점</span>
-                {showSortButtons && (
-                  <ArrowUpDown className={`w-5 h-5 ${sortConfig?.key === 'vote_average' ? 'text-blue-500' : ''}`} />
-                )}
-              </div>
-            </th>
-            <th className="px-4 py-4 text-center w-48">
-              <span className="text-lg">장르</span>
-            </th>
-            <th className="px-4 py-4 text-center w-48">
-              <span className="text-lg">찜</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-800">
-          {movies.map((movie) => (
-            <tr key={movie.id} className="bg-transparent hover:bg-gray-900/70">
-              <td className="px-4 py-6">
-                <img 
-                  src={movie.image} 
-                  alt={movie.title}
-                  className="w-28 h-40 object-cover rounded-lg mx-auto shadow-lg"
-                  loading="lazy"
-                />
-              </td>
-              <td className="px-4 py-6">
-                <div className="space-y-2">
-                  <p className="text-lg font-medium">{movie.title || movie.original_title}</p>
-                  <p className="text-sm text-gray-400 line-clamp-2 max-w-xl">{movie.overview}</p>
+      <div className="hidden md:block">
+        <table className="w-full text-sm">
+          <thead className="text-base uppercase bg-gray-900">
+            <tr>
+              <th className="px-4 py-3 text-center w-40">
+                <span className="text-lg">포스터</span>
+              </th>
+              <th className={`px-4 py-3 ${showSortButtons ? 'cursor-pointer' : ''}`} 
+                onClick={() => showSortButtons && onSort?.('title')}>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg">제목</span>
+                  {showSortButtons && (
+                    <ArrowUpDown className={`w-5 h-5 ${sortConfig?.key === 'title' ? 'text-blue-500' : ''}`} />
+                  )}
                 </div>
-              </td>
-              <td className="px-4 py-6 text-lg text-center">{movie.release_date}</td>
-              <td className="px-4 py-6">
-                <div className="flex items-center justify-center space-x-1">
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  <span className="text-lg">{movie.vote_average?.toFixed(1)}</span>
+              </th>
+              <th className={`px-4 py-3 w-40 ${showSortButtons ? 'cursor-pointer' : ''}`}
+                onClick={() => showSortButtons && onSort?.('release_date')}>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg">개봉일</span>
+                  {showSortButtons && (
+                    <ArrowUpDown className={`w-5 h-5 ${sortConfig?.key === 'release_date' ? 'text-blue-500' : ''}`} />
+                  )}
                 </div>
-              </td>
-              <td className="px-4 py-6">
-                <div className="flex flex-wrap gap-1 justify-center">
-                  {movie.genres?.map((genre, index) => (
-                    <span 
-                      key={index}
-                      className="bg-gray-700/50 text-white text-xs px-2 py-1 rounded"
-                    >
-                      {genre}
-                    </span>
-                  ))}
+              </th>
+              <th className={`px-4 py-3 w-36 ${showSortButtons ? 'cursor-pointer' : ''}`}
+                onClick={() => showSortButtons && onSort?.('vote_average')}>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg">평점</span>
+                  {showSortButtons && (
+                    <ArrowUpDown className={`w-5 h-5 ${sortConfig?.key === 'vote_average' ? 'text-blue-500' : ''}`} />
+                  )}
                 </div>
-              </td>
-              <td className="px-4 py-6 text-center">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleRecommendation(movie, e);
-                  }}
-                  className={`p-3 rounded-full transition-colors mx-auto
-                    ${isMovieRecommended(movie.id) ? 'bg-rose-500 hover:bg-rose-600' : 'bg-gray-700 hover:bg-gray-600'}`}
-                  aria-label={isMovieRecommended(movie.id) ? '찜하기 취소' : '찜하기'}
-                >
-                  <Heart className={`w-6 h-6 ${isMovieRecommended(movie.id) ? 'fill-white' : ''}`} />
-                </button>
-              </td>
+              </th>
+              <th className="px-4 py-3 text-center w-48">
+                <span className="text-lg">장르</span>
+              </th>
+              <th className="px-4 py-3 text-center w-48">
+                <span className="text-lg">찜</span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-800">
+            {visibleMovies.map((movie) => (
+              <tr key={movie.id} className="bg-transparent hover:bg-gray-900/70" style={{ height: `${DESKTOP_ROW_HEIGHT}px` }}>
+                <td className="px-4">
+                  <img 
+                    src={movie.image} 
+                    alt={movie.title}
+                    className="w-24 h-36 object-cover rounded-lg mx-auto shadow-lg"
+                    loading="lazy"
+                  />
+                </td>
+                <td className="px-4">
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium">{movie.title || movie.original_title}</p>
+                    <p className="text-sm text-gray-400 line-clamp-2 max-w-xl">{movie.overview}</p>
+                  </div>
+                </td>
+                <td className="px-4 text-lg text-center">{movie.release_date}</td>
+                <td className="px-4">
+                  <div className="flex items-center justify-center space-x-1">
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <span className="text-lg">{movie.vote_average?.toFixed(1)}</span>
+                  </div>
+                </td>
+                <td className="px-4">
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {movie.genres?.map((genre, index) => (
+                      <span 
+                        key={index}
+                        className="bg-gray-700/50 text-white text-xs px-2 py-1 rounded"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-4 text-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleRecommendation(movie, e);
+                    }}
+                    className={`p-2 rounded-full transition-colors mx-auto
+                      ${isMovieRecommended(movie.id) ? 'bg-rose-500 hover:bg-rose-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+                    aria-label={isMovieRecommended(movie.id) ? '찜하기 취소' : '찜하기'}
+                  >
+                    <Heart className={`w-5 h-5 ${isMovieRecommended(movie.id) ? 'fill-white' : ''}`} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* 모바일 카드 뷰 */}
-      <div className="md:hidden divide-y divide-gray-800">
-        {movies.map((movie) => (
-          <div key={movie.id} className="p-4 space-y-4 bg-transparent hover:bg-gray-900/70">
-            <div className="flex space-x-4">
+      <div className="md:hidden">
+        {visibleMovies.map((movie) => (
+          <div 
+            key={movie.id} 
+            className="p-4 bg-transparent hover:bg-gray-900/70"
+            style={{ height: `${MOBILE_CARD_HEIGHT}px` }}
+          >
+            <div className="flex space-x-4 h-full">
               <img 
                 src={movie.image} 
                 alt={movie.title}
