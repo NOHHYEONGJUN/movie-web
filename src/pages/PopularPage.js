@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../components/common/PageLayout';
-import MovieTableView from '../components/common/MovieTableView';
+import PopularMovieTableView from '../components/popular/PopularMovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
@@ -126,7 +126,7 @@ const PopularPage = () => {
       <>
         {viewMode === 'table' ? (
           <>
-            <MovieTableView
+            <PopularMovieTableView
               movies={movies}
               onToggleRecommendation={toggleRecommendation}
               isMovieRecommended={isMovieRecommended}
