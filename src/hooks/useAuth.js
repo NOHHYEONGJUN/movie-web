@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,7 +8,9 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // 초기 로그인 상태 확인
     const checkAuth = () => {
+
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || 
                         sessionStorage.getItem('isLoggedIn') === 'true';
       const currentUser = localStorage.getItem('currentUser') || 
@@ -30,6 +30,7 @@ export const useAuth = () => {
       setIsLoading(false);
     };
 
+    // 컴포넌트 마운트 시 상태 확인
     checkAuth();
 
     const handleStorage = () => {
@@ -37,6 +38,7 @@ export const useAuth = () => {
     };
 
     window.addEventListener('storage', handleStorage);
+
 
     return () => {
       window.removeEventListener('storage', handleStorage);
