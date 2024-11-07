@@ -13,9 +13,9 @@ const MovieSection = ({
     isMovieRecommended,  
     onToggleRecommendation  
   }) => (
-    <section className="px-12 pt-8 overflow-hidden">
-      <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-        {Icon && <Icon className="w-6 h-6" />}
+    <section className="pt-4 md:pt-8">
+      <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 flex items-center gap-2 px-4 md:px-12">
+        {Icon && <Icon className="w-5 h-5 md:w-6 md:h-6" />}
         {title}
         {customBadge && (
           <span className={STYLES.customBadge}>
@@ -23,18 +23,34 @@ const MovieSection = ({
           </span>
         )}
       </h2>
-      <div className="grid grid-flow-col auto-cols-max gap-2 overflow-x-auto pb-8 relative -ml-8">
-        {movies.map((movie) => (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            isRecommended={isMovieRecommended(movie.id)}
-            onToggleRecommendation={onToggleRecommendation}
-            showRank={showRank}
-            showNew={showNew}
-            showTrendingRank={showTrendingRank}
-          />
-        ))}
+      <div className="relative -mx-4 md:-mx-12">
+        <div 
+          className="flex overflow-x-auto pb-6 md:pb-8 no-scrollbar"
+          style={{
+            scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            paddingLeft: 'max(16px, calc(50% - 150px))',
+            paddingRight: 'max(16px, calc(50% - 150px))',
+          }}
+        >
+          {movies.map((movie) => (
+            <div 
+              key={movie.id}
+              className="flex-none mr-2 last:mr-0"
+              style={{ scrollSnapAlign: 'start' }}
+            >
+              <MovieCard
+                movie={movie}
+                isRecommended={isMovieRecommended(movie.id)}
+                onToggleRecommendation={onToggleRecommendation}
+                showRank={showRank}
+                showNew={showNew}
+                showTrendingRank={showTrendingRank}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

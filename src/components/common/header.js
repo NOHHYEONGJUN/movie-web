@@ -43,15 +43,15 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 via-black/60 to-transparent">
-      <nav className="flex items-center justify-between px-12 py-4">
-        <div className="flex items-center space-x-8">
+      <nav className="flex items-center justify-between px-4 sm:px-12 py-3 sm:py-4">
+        <div className="flex items-center space-x-4 sm:space-x-8">
           {/* Netflix Logo */}
-          <Link to="/" className="text-red-600 text-3xl font-bold">
+          <Link to="/" className="text-red-600 text-2xl sm:text-3xl font-bold">
             NETFLIX
           </Link>
           
-          {/* Navigation Links - 항상 표시 */}
-          <div className="flex space-x-6">
+          {/* Mobile Navigation Menu */}
+          <div className="flex space-x-3 sm:space-x-6 text-sm sm:text-base">
             <Link 
               to="/" 
               className="text-white hover:text-gray-300"
@@ -83,42 +83,33 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Right Side Icons - 로그인된 경우만 표시 */}
-        <div className="flex items-center space-x-6">
-          {/* 프로필 버튼 */}
-          <div className="relative" ref={menuRef}>
-            <button
-              aria-label="프로필"
-              className="text-white hover:text-gray-300 flex items-center space-x-2"
-              onClick={handleProfileClick}
-            >
-              <User className="w-5 h-5" />
-              {isAuthenticated && (
-                <span className="text-sm hidden md:inline">
-                  {user?.email?.split('@')[0]}
-                </span>
-              )}
-            </button>
+        {/* Profile Menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            aria-label="프로필"
+            className="text-white hover:text-gray-300 p-1"
+            onClick={handleProfileClick}
+          >
+            <User className="w-5 h-5" />
+          </button>
 
-            {/* 프로필 드롭다운 메뉴 */}
-            {showProfileMenu && isAuthenticated && (
-              <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black/95 ring-1 ring-black ring-opacity-5">
-                <div className="py-1" role="menu">
-                  <div className="px-4 py-2 text-sm text-gray-400 border-b border-gray-800">
-                    {user?.email}
-                  </div>
-                  <button
-                    onClick={logout}
-                    className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 flex items-center space-x-2"
-                    role="menuitem"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>로그아웃</span>
-                  </button>
+          {showProfileMenu && isAuthenticated && (
+            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black/95 ring-1 ring-black ring-opacity-5">
+              <div className="py-1" role="menu">
+                <div className="px-4 py-2 text-xs sm:text-sm text-gray-400 border-b border-gray-800">
+                  {user?.email}
                 </div>
+                <button
+                  onClick={logout}
+                  className="w-full text-left px-4 py-2 text-xs sm:text-sm text-white hover:bg-gray-800 flex items-center space-x-2"
+                  role="menuitem"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>로그아웃</span>
+                </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </nav>
     </header>
