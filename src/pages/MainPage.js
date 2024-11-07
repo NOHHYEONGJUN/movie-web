@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Heart, Star, Calendar, TrendingUp, Zap, Film } from 'lucide-react';
+import { Heart, Star, Calendar, TrendingUp, Zap, Film, ArrowUp } from 'lucide-react';
 import Header from '../components/common/header';
 import MovieSection from '../components/main/MovieSection';
+import ScrollToTopButton from '../components/common/ScrollToTopButton';
 
 import { 
   getURL4PopularMovies, 
@@ -205,6 +206,8 @@ const MainPage = () => {
           );
         })}
       </main>
+      {/* 스크롤 투 탑 버튼 추가 */}
+      <ScrollToTopButton />
     </div>
   );
 };
