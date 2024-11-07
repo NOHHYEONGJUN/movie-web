@@ -23,7 +23,7 @@ const MovieSection = ({
           </span>
         )}
       </h2>
-      <div className="relative -mx-4 md:-mx-12">
+      <div className="relative -mx-4 md:-mx-2">
         <div 
           className="flex overflow-x-auto pb-6 md:pb-8 no-scrollbar"
           style={{
