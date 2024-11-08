@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Heart, Star, Calendar, TrendingUp, Zap, Film } from 'lucide-react';
+import { Heart, Star, Calendar, TrendingUp, Zap, Film, ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from '../components/common/header';
 import MovieSection from '../components/main/MovieSection';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
@@ -37,6 +37,106 @@ import {
   STATUS_MESSAGES,
   MOVIE_DATA_MAPPING
 } from '../constants/movieConstants';
+
+// TrendingBanner 컴포넌트
+const TrendingBanner = ({ movies }) => {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [isTransitioning, setIsTransitioning] = React.useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleNext();
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [currentIndex]);
+
+  const handlePrev = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1));
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  const handleNext = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev === movies.length - 1 ? 0 : prev + 1));
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  if (!movies?.length) return null;
+
+  return (
+    <div className="relative h-[70vh] w-full overflow-hidden">
+      <div
+        className="absolute inset-0 w-full h-full transition-opacity duration-500"
+        style={{
+          opacity: isTransitioning ? 0 : 1
+        }}
+      >
+        <div className="relative w-full h-full">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(${movies[currentIndex].backdrop_path 
+                ? `https://image.tmdb.org/t/p/original${movies[currentIndex].backdrop_path}`
+                : '/api/placeholder/1920/1080'})`,
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 text-white">
+            <div className="max-w-4xl">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="bg-red-600 px-4 py-1 rounded-full text-sm font-semibold">
+                  #{movies[currentIndex].trendingRank} Trending
+                </span>
+                {movies[currentIndex].genres?.map((genre) => (
+                  <span key={genre} className="text-sm text-gray-300">
+                    {genre}
+                  </span>
+                ))}
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                {movies[currentIndex].title}
+              </h1>
+              <p className="text-gray-300 text-lg max-w-2xl line-clamp-2">
+                {movies[currentIndex].overview}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={handlePrev}
+        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
+      >
+        <ChevronLeft className="w-8 h-8 text-white" />
+      </button>
+      <button
+        onClick={handleNext}
+        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
+      >
+        <ChevronRight className="w-8 h-8 text-white" />
+      </button>
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        {movies.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              index === currentIndex ? 'bg-white' : 'bg-white/50'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const lucideIcons = {
   Heart,
@@ -146,7 +246,6 @@ const MainPage = () => {
     fetchAllMovies();
   }, [API_KEY, dispatch]);
 
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -168,7 +267,9 @@ const MainPage = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <main className="pt-20">
+      <TrendingBanner movies={trendingMovies} />
+      <div className="h-16"></div>
+      <main>
         {MOVIE_SECTIONS.map(section => {
           const movieMap = {
             recommendedMovies,
@@ -206,7 +307,6 @@ const MainPage = () => {
           );
         })}
       </main>
-      {/* 스크롤 투 탑 버튼 추가 */}
       <ScrollToTopButton />
     </div>
   );
