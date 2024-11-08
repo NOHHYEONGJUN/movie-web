@@ -7,6 +7,9 @@ import { PaginationControls } from '../components/common/PaginationControls';
 import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useAuth } from '../hooks/useAuth';
+import { storage } from '../utils/storage';
 import { 
   RECOMMENDED_MOVIES_KEY, 
   IMAGE_BASE_URL, 
@@ -19,6 +22,7 @@ const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 const SearchPage = () => {
+  const { user } = useAuth();
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -27,20 +31,66 @@ const SearchPage = () => {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // 검색 관련 상태들을 로컬 스토리지와 연동
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [ratingRange, setRatingRange] = useState([0, 10]);
   const [yearRange, setYearRange] = useState([1900, new Date().getFullYear()]);
   const [sortBy, setSortBy] = useState('popularity.desc');
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [recentFilters, setRecentFilters] = useState([]);
   const [recommendedMovies, setRecommendedMovies] = useState([]);
+  
   const observer = useRef();
 
+  // 초기 데이터 로드
   useEffect(() => {
+    // 저장된 영화 로드
     const savedMovies = localStorage.getItem(RECOMMENDED_MOVIES_KEY);
     if (savedMovies) {
       setRecommendedMovies(JSON.parse(savedMovies));
     }
+
+    // 마지막 검색 설정 로드
+    const lastSettings = storage.getLastSearchSettings();
+    if (lastSettings) {
+      setSearchQuery(lastSettings.query);
+      setSelectedGenres(lastSettings.genres);
+      setRatingRange(lastSettings.rating);
+      setYearRange(lastSettings.year);
+      setSortBy(lastSettings.sortBy);
+    }
+
+    // 검색 기록 및 필터 로드
+    setSearchHistory(storage.getSearchHistory());
+    setRecentFilters(storage.getRecentFilters());
   }, []);
+
+  // 검색 기록 저장
+  const saveSearchHistory = useCallback((query) => {
+    if (!query.trim()) return;
+    const newHistory = storage.addSearchHistory(query);
+    setSearchHistory(newHistory);
+  }, []);
+
+  // 필터 설정 저장
+  const saveFilterSettings = useCallback(() => {
+    const currentFilter = {
+      genres: selectedGenres,
+      rating: ratingRange,
+      year: yearRange,
+      sort: sortBy
+    };
+
+    const newFilters = storage.addRecentFilter(currentFilter);
+    setRecentFilters(newFilters);
+
+    storage.saveLastSearchSettings({
+      query: searchQuery,
+      ...currentFilter
+    });
+  }, [selectedGenres, ratingRange, yearRange, sortBy, searchQuery]);
 
   const fetchMovies = useCallback(async (pageNum) => {
     setIsLoading(true);
@@ -60,6 +110,11 @@ const SearchPage = () => {
 
       const response = await fetch(url);
       const data = await response.json();
+
+      if (searchQuery) {
+        saveSearchHistory(searchQuery);
+      }
+      saveFilterSettings();
 
       const processedMovies = data.results.map(movie => ({
         ...movie,
@@ -85,7 +140,7 @@ const SearchPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode]);
+  }, [searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode, saveSearchHistory, saveFilterSettings]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -106,6 +161,7 @@ const SearchPage = () => {
     setSortBy('popularity.desc');
     setPage(1);
     setShowFilters(false);
+    storage.clearLastSearchSettings();
   };
 
   const toggleRecommendation = (movie, e) => {
@@ -161,7 +217,6 @@ const SearchPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isLoading, hasMore, viewMode]);
-
 
   const renderContent = () => {
     if (error) {
@@ -241,6 +296,8 @@ const SearchPage = () => {
         sortOptions={SORT_OPTIONS}
         resetFilters={resetFilters}
         setPage={setPage}
+        searchHistory={searchHistory}
+        recentFilters={recentFilters}
       />
       {renderContent()}
       {!isLoading && !hasMore && movies.length > 0 && (
