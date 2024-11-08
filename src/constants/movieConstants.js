@@ -20,11 +20,11 @@ export const SORT_OPTIONS = {
 
 // 영화 섹션 정의
 export const MOVIE_SECTIONS = [
-    {
-      id: 'recommendedMovies',
-      title: '내가 추천하는 영화',
-      icon: 'Heart'
-    },
+    // {
+    //   id: 'recommendedMovies',
+    //   title: '내가 추천하는 영화',
+    //   icon: 'Heart'
+    // },
     {
       id: 'trendingMovies',
       title: '이번 주 트렌딩',
