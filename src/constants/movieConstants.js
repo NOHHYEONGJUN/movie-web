@@ -55,11 +55,11 @@ export const MOVIE_SECTIONS = [
       showNew: true,
       icon: 'Film'
     },
-    {
-      id: 'upcomingMovies',
-      title: '개봉 예정작',
-      icon: 'Calendar'
-    },
+    // {
+    //   id: 'upcomingMovies',
+    //   title: '개봉 예정작',
+    //   icon: 'Calendar'
+    // },
     {
       id: 'actionMovies',
       title: '액션 & 어드벤처',
