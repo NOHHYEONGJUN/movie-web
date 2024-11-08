@@ -7,7 +7,6 @@ import { PaginationControls } from '../components/common/PaginationControls';
 import MovieTableView from '../components/common/MovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useAuth } from '../hooks/useAuth';
 import { storage } from '../utils/storage';
 import { 
@@ -22,7 +21,7 @@ const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 const SearchPage = () => {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -142,18 +141,18 @@ const SearchPage = () => {
     }
   }, [searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode, saveSearchHistory, saveFilterSettings]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
     window.scrollTo(0, 0);
-  };
+  }, []);
 
-  const handleViewModeChange = (newMode) => {
+  const handleViewModeChange = useCallback((newMode) => {
     setViewMode(newMode);
     setPage(1);
     window.scrollTo(0, 0);
-  };
+  }, []);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedGenres([]);
     setRatingRange([0, 10]);
@@ -162,10 +161,14 @@ const SearchPage = () => {
     setPage(1);
     setShowFilters(false);
     storage.clearLastSearchSettings();
-  };
+  }, []);
 
-  const toggleRecommendation = (movie, e) => {
+  const toggleRecommendation = useCallback((movie, e) => {
     if (e) e.stopPropagation();
+    if (!isAuthenticated) {
+      // TODO: 로그인 필요 알림 처리
+      return;
+    }
     setRecommendedMovies(prev => {
       const isRecommended = prev.some(m => m.id === movie.id);
       let newRecommended = isRecommended
@@ -174,11 +177,11 @@ const SearchPage = () => {
       localStorage.setItem(RECOMMENDED_MOVIES_KEY, JSON.stringify(newRecommended));
       return newRecommended;
     });
-  };
+  }, [isAuthenticated]);
 
-  const isMovieRecommended = (movieId) => {
+  const isMovieRecommended = useCallback((movieId) => {
     return recommendedMovies.some(movie => movie.id === movieId);
-  };
+  }, [recommendedMovies]);
 
   const lastMovieElementRef = useCallback(node => {
     if (isLoading) return;
@@ -200,7 +203,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     fetchMovies(page);
-  }, [page, searchQuery, selectedGenres, ratingRange, yearRange, sortBy, fetchMovies, viewMode]);
+  }, [page, fetchMovies]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -218,7 +221,7 @@ const SearchPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isLoading, hasMore, viewMode]);
 
-  const renderContent = () => {
+  const renderContent = useCallback(() => {
     if (error) {
       return (
         <div className="text-center py-12">
@@ -270,7 +273,18 @@ const SearchPage = () => {
         )}
       </>
     );
-  };
+  }, [
+    error,
+    isLoading,
+    page,
+    viewMode,
+    movies,  // 추가된 의존성
+    toggleRecommendation,
+    isMovieRecommended,
+    lastMovieElementRef,
+    totalPages,
+    handlePageChange
+  ]);
 
   return (
     <PageLayout
