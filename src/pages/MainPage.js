@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Heart, Star, Calendar, TrendingUp, Zap, Film, ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from '../components/common/header';
@@ -43,27 +43,27 @@ const TrendingBanner = ({ movies }) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isTransitioning, setIsTransitioning] = React.useState(false);
 
+  const handleNext = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev === movies.length - 1 ? 0 : prev + 1));
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, movies.length]);
+
+  const handlePrev = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1));
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, movies.length]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       handleNext();
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [currentIndex]);
-
-  const handlePrev = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1));
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  const handleNext = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev === movies.length - 1 ? 0 : prev + 1));
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
+  }, [handleNext]);
 
   if (!movies?.length) return null;
 
@@ -177,14 +177,14 @@ const MainPage = () => {
     }
   }, [dispatch]);
 
-  const handleToggleRecommendation = (movie, e) => {
+  const handleToggleRecommendation = useCallback((movie, e) => {
     e.stopPropagation();
     dispatch(toggleRecommendation(movie));
-  };
+  }, [dispatch]);
 
-  const isMovieRecommended = (movieId) => {
+  const isMovieRecommended = useCallback((movieId) => {
     return recommendedMovies.some(movie => movie.id === movieId);
-  };
+  }, [recommendedMovies]);
 
   useEffect(() => {
     const fetchAllMovies = async () => {
