@@ -76,7 +76,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 via-black/60 to-transparent">
+    <header className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-b from-black/80 via-black/60 to-transparent">
       <nav 
         className={`flex items-center justify-between px-4 sm:px-12 transition-all duration-300 ease-in-out
           ${scrolled ? 'py-2 sm:py-3' : 'py-3 sm:py-4'}`}
@@ -96,7 +96,7 @@ const Header = () => {
             className={`text-red-600 font-bold transition-all duration-300
               ${scrolled ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'}`}
           >
-            NETFLIX
+            NOH-FLIX
           </Link>
           
           {/* 데스크톱 네비게이션 */}
@@ -165,7 +165,7 @@ const Header = () => {
 
       {/* 모바일 사이드 메뉴 */}
       <div 
-        className={`fixed inset-0 bg-black/50 transition-opacity duration-300 md:hidden
+        className={`fixed inset-0 bg-black/50 transition-opacity duration-300 md:hidden z-[10000]
           ${showMobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         <div 
