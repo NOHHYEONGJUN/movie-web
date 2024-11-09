@@ -1,70 +1,152 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Movie Search Application (Like NETFLIX)
 
-## Available Scripts
+영화 검색 및 위시리스트 관리 웹 애플리케이션입니다.
 
-In the project directory, you can run:
+&nbsp;
 
-### `npm start`
+🎬 페이지 프리뷰
+메인 페이지
+최신 영화와 인기 영화를 확인할 수 있는 메인 페이지입니다.
+<img src="/public/images/main.png" alt="메인 페이지">
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+검색 페이지
+원하는 영화를 검색하고 결과를 그리드/테이블 뷰로 확인할 수 있습니다.
 
-### `npm test`
+<img src="/public/images/search-grid.png" alt="검색 페이지(그리드)">
+그리드 뷰
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<img src="/public/images/search-table.png" alt="검색 페이지(테이블)">
+테이블 뷰
 
-### `npm run build`
+인기 영화 페이지
+현재 인기 있는 영화 목록을 확인할 수 있습니다.
+<img src="/public/images/popular.png" alt="인기 영화 페이지">
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+위시리스트 페이지
+사용자가 저장한 영화 목록을 관리할 수 있습니다.
+<img src="/public/images/wishlist.png" alt="위시리스트 페이지">
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+&nbsp;
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 기술 스택
 
-### `npm run eject`
+- **Frontend**: React.js
+- **상태관리**: Redux Toolkit
+- **스타일링**: Tailwind CSS
+- **API**: TMDB API
+- **배포**: GitHub Pages
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+&nbsp;
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📌 주요 기능
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- 영화 검색
+- 인기 영화 목록 조회
+- 위시리스트 관리
+- 그리드/테이블 뷰 토글
+- 반응형 디자인
+&nbsp;
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🔧 설치 및 실행
 
-## Learn More
+### 필수 요구사항
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Node.js 18.0.0 이상
+- npm 8.0.0 이상
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 설치
 
-### Code Splitting
+```bash
+# 저장소 클론
+git clone https://github.com/username/movie-search-app.git
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# 디렉토리 이동
+cd movie-search-app
 
-### Analyzing the Bundle Size
+# 의존성 설치
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 실행
 
-### Making a Progressive Web App
+```bash
+# 개발 서버 실행
+npm start
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# 프로덕션 빌드
+npm run build
+```
 
-### Advanced Configuration
+&nbsp;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📁 프로젝트 구조
 
-### Deployment
+```
+src/
+├── api/          # API 관련 로직
+├── components/   # 리액트 컴포넌트
+├── constants/    # 상수 정의
+├── hooks/        # 커스텀 훅
+├── pages/        # 페이지 컴포넌트
+├── store/        # Redux 스토어 및 슬라이스
+└── utils/        # 유틸리티 함수
+```
+&nbsp;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 📝 개발 가이드
 
-### `npm run build` fails to minify
+### 코딩 컨벤션
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- 컴포넌트는 함수형 컴포넌트로 작성
+- 파일명은 PascalCase로 작성 (예: MovieCard.js)
+- 상수는 UPPER_SNAKE_CASE로 작성
+- 변수와 함수는 camelCase로 작성
+
+&nbsp;
+
+### Git 컨벤션
+
+#### 브랜치 전략 (GitFlow)
+
+- `main`: 배포 브랜치
+- `develop`: 개발 브랜치
+- `feature/*`: 기능 추가 브랜치
+
+#### 커밋 메시지 컨벤션
+
+```
+type: subject
+
+body
+
+footer
+
+
+Type
+  - feat: 새로운 기능 추가
+  - fix: 버그 수정
+  - docs: 문서 수정
+  - style: 코드 포맷팅
+  - refactor: 코드 리팩토링
+  - test: 테스트 코드
+  - chore: 빌드 업무 수정
+ ```
+
+&nbsp;
+
+### Pull Request 프로세스
+
+1. feature 브랜치 생성
+2. 작업 완료 후 PR 생성
+3. 코드 리뷰 진행
+4. 승인 후 develop 브랜치로 머지
+
+&nbsp;
+
+## 🔒 보안 설정
+
+- main 브랜치 직접 푸시 제한
+- PR 승인 필수
+- 빌드/테스트 통과 필수
