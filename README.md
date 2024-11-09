@@ -65,6 +65,21 @@
 
 <img src="/public/images/wishlist.png" alt="위시리스트 페이지">
 
+### 모바일 최적화
+
+반응형 구현을 통해 모바일 사용자 경험을 개선했습니다.
+
+<table>
+<tr>
+<td width="50%">
+<img src="/public/images/mobile1.png" width="100%" alt="모바일 화면1">
+</td>
+<td width="50%">
+<img src="/public/images/mobile2.png" width="100%" alt="모바일 화면2">
+</td>
+</tr>
+</table>
+
 &nbsp;
 
 &nbsp;
