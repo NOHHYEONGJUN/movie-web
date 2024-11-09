@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Heart, Star, Calendar, TrendingUp, Zap, Film, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth'; // 추가
 import Header from '../components/common/header';
 import MovieSection from '../components/main/MovieSection';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
@@ -220,7 +220,7 @@ const lucideIcons = {
 
 const MainPage = () => {
   const dispatch = useDispatch();
-  const { apiKey, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { apiKey, isAuthenticated, isLoading: authLoading } = useAuth(); // useAuth 사용
   const {
     popularMovies,
     latestMovies,
@@ -329,7 +329,7 @@ const MainPage = () => {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return null; // useAuth 내부에서 자동으로 리디렉션 처리
   }
 
   if (error) {

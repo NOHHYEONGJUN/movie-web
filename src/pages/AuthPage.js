@@ -11,7 +11,8 @@ const AuthPage = () => {
     apiKey: '',
     confirmApiKey: '',
     keepLoggedIn: false,
-    saveEmail: false
+    saveEmail: false,
+    termsAccepted: false
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -27,7 +28,6 @@ const AuthPage = () => {
     }
   }, []);
 
-
   const verifyTMDBApiKey = async (apiKey) => {
     try {
       const response = await axios.get(
@@ -42,17 +42,16 @@ const AuthPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.email) {
       newErrors.email = '이메일을 입력해주세요';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) {
       newErrors.email = '유효한 이메일 주소를 입력해주세요';
     }
 
     if (!formData.apiKey) {
       newErrors.apiKey = 'API 키를 입력해주세요';
     }
-
 
     if (!isLogin) {
       if (formData.apiKey !== formData.confirmApiKey) {
@@ -67,11 +66,10 @@ const AuthPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
 
+    if (!validateForm()) return;
 
     const isApiValid = await verifyTMDBApiKey(formData.apiKey);
     if (!isApiValid) {
@@ -129,27 +127,14 @@ const AuthPage = () => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const existingUser = users.find(u => u.email === formData.email);
 
-
-      const newUser = {
-        email: formData.email,
-        password: formData.password,
-        favoriteMovies: [],
-        createdAt: new Date().toISOString()
-      };
-
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      // 회원가입 성공 메시지 표시 후 로그인 폼으로 전환
-      alert('회원가입이 완료되었습니다. 로그인해주세요.');
-      setIsLogin(true);
-      setFormData(prev => ({
-        ...prev,
-        password: '',
-        confirmPassword: ''
-      }));
+    if (existingUser) {
+      toast.error('이미 등록된 이메일입니다', {
+        duration: 3000,
+        position: 'top-center'
+      });
+      setErrors({ email: '이미 등록된 이메일입니다' });
+      return;
     }
-
 
     const newUser = {
       email: formData.email,
@@ -181,12 +166,15 @@ const AuthPage = () => {
     const { name, value, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'keepLoggedIn' || name === 'saveEmail' ? checked : value
+      [name]: name === 'keepLoggedIn' || name === 'saveEmail' || name === 'termsAccepted'
+        ? checked
+        : value
     }));
   };
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 sm:px-6 md:px-8">
+      <Toaster position="top-center" />
       <div className="bg-black/75 p-6 sm:p-8 md:p-16 rounded-md w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
           <motion.div
@@ -199,14 +187,14 @@ const AuthPage = () => {
             <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 text-center">
               {isLogin ? '로그인' : '회원가입'}
             </h1>
-  
+
             <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
               {errors.auth && (
                 <div className="bg-red-500/20 text-red-500 p-3 sm:p-4 rounded text-center text-sm sm:text-base">
                   {errors.auth}
                 </div>
               )}
-  
+
               <div>
                 <input
                   type="email"
@@ -221,7 +209,7 @@ const AuthPage = () => {
                   <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.email}</p>
                 )}
               </div>
-  
+
               <div>
                 <input
                   type="password"
@@ -236,7 +224,7 @@ const AuthPage = () => {
                   <p className="text-red-500 text-xs sm:text-sm mt-2">{errors.apiKey}</p>
                 )}
               </div>
-  
+
               {!isLogin && (
                 <>
                   <div>
@@ -271,9 +259,9 @@ const AuthPage = () => {
                   {errors.terms && (
                     <p className="text-red-500 text-xs sm:text-sm">{errors.terms}</p>
                   )}
-                </div>
+                </>
               )}
-  
+
               {isLogin && (
                 <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-center">
@@ -290,7 +278,7 @@ const AuthPage = () => {
                       아이디 저장
                     </label>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -307,7 +295,7 @@ const AuthPage = () => {
                   </div>
                 </div>
               )}
-  
+
               <button
                 type="submit"
                 className="w-full bg-red-600 text-white py-3 sm:py-4 rounded-md text-base sm:text-lg
@@ -316,7 +304,7 @@ const AuthPage = () => {
                 {isLogin ? '로그인' : '회원가입'}
               </button>
             </form>
-  
+
             <p className="text-gray-400 mt-6 text-center text-sm sm:text-base">
               {isLogin ? '처음이신가요?' : '이미 계정이 있으신가요?'}
               <button
