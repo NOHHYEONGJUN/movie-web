@@ -166,8 +166,7 @@ src/
 
 1. 기능 개발은 feature/ 브랜치에서 진행
 2. 개발 완료된 기능은 PR을 통해 develop 브랜치로 병합
-3. 릴리스 준비는 release/ 브랜치에서 진행
-4. 긴급 수정은 hotfix/ 브랜치에서 진행
+3. develop 브랜치에서 테스트 및 main 브랜치로 PR
 5. 최종 배포는 main 브랜치에서 수행
 
 &nbsp;
