@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useAuth } from '../hooks/useAuth'; // useAuth 추가
 import { PageLayout } from '../components/common/PageLayout';
 import PopularMovieTableView from '../components/popular/PopularMovieTableView';
 import MovieGridView from '../components/common/MovieGridView';
@@ -21,7 +22,8 @@ const PopularPage = () => {
   const [recommendedMovies, setRecommendedMovies] = useState([]);
   const observer = useRef();
   
-  const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+  // useAuth 사용
+  const { apiKey, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const getGenreName = (genreId) => {
     return GENRES[genreId] || '';
@@ -51,12 +53,17 @@ const PopularPage = () => {
   };
 
   const fetchMovieData = useCallback(async (pageNum) => {
+    // 인증 상태 체크
+    if (!isAuthenticated || !apiKey) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const itemsPerPage = viewMode === 'table' ? ITEMS_PER_PAGE_TABLE : ITEMS_PER_PAGE_GRID;
-      const url = getURL4PopularMovies(API_KEY, pageNum);
+      const url = getURL4PopularMovies(apiKey, pageNum);
       
       const response = await fetchMovies(url);
       const processedMovies = response.results.map(movie => ({
@@ -83,7 +90,7 @@ const PopularPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [API_KEY, viewMode]);
+  }, [apiKey, viewMode, isAuthenticated]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -110,8 +117,18 @@ const PopularPage = () => {
   }, [isLoading, page, totalPages, viewMode]);
 
   useEffect(() => {
-    fetchMovieData(page);
-  }, [page, viewMode, fetchMovieData]);
+    if (!authLoading) {
+      fetchMovieData(page);
+    }
+  }, [page, viewMode, fetchMovieData, authLoading]);
+
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return null; // useAuth 내부에서 리디렉션 처리
+  }
 
   const renderContent = () => {
     if (error) {
