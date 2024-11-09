@@ -1,7 +1,7 @@
 
-# Movie Search Application (Like NETFLIX)
+# 🎬 Movie Search Application (Like NETFLIX) 🎬
 
-Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케이션
+### Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케이션
 
 &nbsp;
 
@@ -15,6 +15,8 @@ Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케�
 
 &nbsp;
 
+&nbsp;
+
 ## 📌 주요 기능
 
 - 영화 검색
@@ -22,6 +24,7 @@ Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케�
 - 위시리스트 관리
 - 그리드/테이블 뷰 토글
 - 반응형 디자인
+
 &nbsp;
 
 ## 🎬 페이지 프리뷰
@@ -29,6 +32,7 @@ Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케�
 ### 메인 페이지
 
 최신 영화와 인기 영화를 확인할 수 있는 메인 페이지입니다.
+
 <img src="/public/images/home.png" alt="메인 페이지">
 
 &nbsp;
@@ -37,33 +41,42 @@ Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케�
 
 원하는 영화를 검색하고 결과를 그리드/테이블 뷰로 확인할 수 있습니다.
 
+그리드 뷰
 <img src="/public/images/search-grid.png" alt="검색 페이지(그리드)">
-#### 그리드 뷰
 
+테이블 뷰
 <img src="/public/images/search-table.png" alt="검색 페이지(테이블)">
-#### 테이블 뷰
 
 &nbsp;
 
 ### 인기 영화 
 
 현재 인기 있는 영화 목록을 확인할 수 있습니다.
+
 <img src="/public/images/popular.png" alt="인기 영화 페이지">
 
 &nbsp;
 
 ### 위시리스트 페이지
+
 사용자가 저장한 영화 목록을 관리할 수 있습니다.
+
 <img src="/public/images/wishlist.png" alt="위시리스트 페이지">
+
+&nbsp;
 
 &nbsp;
 
 ## 🔧 설치 및 실행
 
+&nbsp;
+
 ### 필수 요구사항
 
 - Node.js 18.0.0 이상
 - npm 8.0.0 이상
+
+&nbsp;
 
 ### 설치
 
@@ -78,6 +91,8 @@ cd movie-web
 npm install
 ```
 
+&nbsp;
+
 ### 실행
 
 ```bash
@@ -87,6 +102,8 @@ npm start
 # 프로덕션 빌드
 npm run build
 ```
+
+&nbsp;
 
 &nbsp;
 
@@ -104,7 +121,11 @@ src/
 ```
 &nbsp;
 
+&nbsp;
+
 ## 📝 개발 가이드
+
+&nbsp;
 
 ### 코딩 컨벤션
 
@@ -122,6 +143,8 @@ src/
 - `main`: 배포 브랜치
 - `develop`: 개발 브랜치
 - `feature/*`: 기능 개발 브랜치
+
+&nbsp;
 
 #### 커밋 메시지 컨벤션
 
