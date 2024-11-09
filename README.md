@@ -71,12 +71,12 @@
 
 반응형 구현을 통해 모바일 사용자 경험을 개선했습니다.
 
-<table border="0" style="border: none;">
-<tr style="border: none;">
-<td width="50%" style="border: none;">
+<table cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: none; margin: 0; padding: 0;">
+<tr style="border: none; margin: 0; padding: 0;">
+<td width="50%" style="border: none; margin: 0; padding: 0;">
 <img src="/public/images/mobile1.png" width="100%" alt="모바일 화면1">
 </td>
-<td width="50%" style="border: none;">
+<td width="50%" style="border: none; margin: 0; padding: 0;">
 <img src="/public/images/mobile2.png" width="100%" alt="모바일 화면2">
 </td>
 </tr>
