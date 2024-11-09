@@ -12,6 +12,7 @@
 - **스타일링**: Tailwind CSS
 - **API**: TMDB API
 - **배포**: GitHub Pages
+- **CI/CD**: GitHub Actions
 
 &nbsp;
 
@@ -161,6 +162,15 @@ src/
 
 &nbsp;
 
+#### 브랜치 운영 규칙
+
+1. 기능 개발은 feature/ 브랜치에서 진행
+2. 개발 완료된 기능은 PR을 통해 develop 브랜치로 병합
+3. develop 브랜치에서 테스트 및 main 브랜치로 PR
+5. 최종 배포는 main 브랜치에서 수행
+
+&nbsp;
+
 #### 커밋 메시지 컨벤션
 
 ```
@@ -220,8 +230,11 @@ src/
 
 1. feature 브랜치 생성
 2. 작업 완료 후 PR 생성
-3. 코드 리뷰 진행
-4. 승인 후 develop 브랜치로 머지
+3. CI 파이프라인 통과 확인
+4. 코드 리뷰 진행 (리뷰어 최소 1명 이상 지정)
+5. 승인 후 develop 브랜치로 머지
+
+&nbsp;
 
 &nbsp;
 
@@ -230,3 +243,59 @@ src/
 - main 브랜치 직접 푸시 제한
 - PR 승인 필수
 - 빌드/테스트 통과 필수
+
+&nbsp;
+
+&nbsp;
+
+## 🔄 CI/CD
+
+### GitHub Actions Workflow
+
+```
+name: Deploy React App to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React app
+        env:
+          REACT_APP_TMDB_API_KEY: ${{ secrets.REACT_APP_TMDB_API_KEY }}
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
