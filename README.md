@@ -197,6 +197,8 @@ src/
 - [ ] 변경 사항에 대한 테스트
 ```
 
+&nbsp;
+
 ### Pull Request 프로세스
 
 1. feature 브랜치 생성
