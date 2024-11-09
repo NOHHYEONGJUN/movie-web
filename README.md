@@ -1,7 +1,7 @@
 
 # 🎬 Movie Search Application (Like NETFLIX) 🎬
 
-### Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케이션
+### &nbsp; Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케이션
 
 &nbsp;
 
@@ -27,6 +27,8 @@
 
 &nbsp;
 
+&nbsp;
+
 ## 🎬 페이지 프리뷰
 
 ### 메인 페이지
@@ -41,10 +43,10 @@
 
 원하는 영화를 검색하고 결과를 그리드/테이블 뷰로 확인할 수 있습니다.
 
-그리드 뷰
+#### 그리드 뷰
 <img src="/public/images/search-grid.png" alt="검색 페이지(그리드)">
 
-테이블 뷰
+#### 테이블 뷰
 <img src="/public/images/search-table.png" alt="검색 페이지(테이블)">
 
 &nbsp;
@@ -68,8 +70,6 @@
 &nbsp;
 
 ## 🔧 설치 및 실행
-
-&nbsp;
 
 ### 필수 요구사항
 
@@ -124,8 +124,6 @@ src/
 &nbsp;
 
 ## 📝 개발 가이드
-
-&nbsp;
 
 ### 코딩 컨벤션
 
