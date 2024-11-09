@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Heart, Star, Calendar, TrendingUp, Zap, Film, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import Header from '../components/common/header';
 import MovieSection from '../components/main/MovieSection';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
@@ -41,47 +42,105 @@ import {
 // TrendingBanner 컴포넌트
 const TrendingBanner = ({ movies }) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [nextIndex, setNextIndex] = React.useState(null);
   const [isTransitioning, setIsTransitioning] = React.useState(false);
+  const [loadedImages, setLoadedImages] = React.useState(new Set());
+
+  // 이미지 프리로딩 함수
+  const preloadImage = useCallback((url) => {
+    if (loadedImages.has(url)) return Promise.resolve();
+    
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        setLoadedImages(prev => new Set(prev).add(url));
+        resolve();
+      };
+      img.onerror = reject;
+    });
+  }, [loadedImages]);
+
+  // 다음 이미지로 전환하는 함수
+  const transition = useCallback(async (newIndex) => {
+    if (isTransitioning) return;
+    
+    const nextImageUrl = movies[newIndex].backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movies[newIndex].backdrop_path}`
+      : '/api/placeholder/1920/1080';
+
+    try {
+      setIsTransitioning(true);
+      setNextIndex(newIndex);
+      
+      // 다음 이미지 프리로드
+      await preloadImage(nextImageUrl);
+      
+      // 전환 애니메이션 시작
+      setTimeout(() => {
+        setCurrentIndex(newIndex);
+        setNextIndex(null);
+        setIsTransitioning(false);
+      }, 500);
+    } catch (error) {
+      console.error('Image preload failed:', error);
+      setIsTransitioning(false);
+      setNextIndex(null);
+    }
+  }, [isTransitioning, movies, preloadImage]);
 
   const handleNext = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev === movies.length - 1 ? 0 : prev + 1));
-    setTimeout(() => setIsTransitioning(false), 500);
-  }, [isTransitioning, movies.length]);
+    const newIndex = currentIndex === movies.length - 1 ? 0 : currentIndex + 1;
+    transition(newIndex);
+  }, [currentIndex, movies.length, transition]);
 
   const handlePrev = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1));
-    setTimeout(() => setIsTransitioning(false), 500);
-  }, [isTransitioning, movies.length]);
+    const newIndex = currentIndex === 0 ? movies.length - 1 : currentIndex - 1;
+    transition(newIndex);
+  }, [currentIndex, movies.length, transition]);
 
+  // 자동 전환 타이머
   useEffect(() => {
     const timer = setInterval(() => {
-      handleNext();
+      if (!isTransitioning) {
+        handleNext();
+      }
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [handleNext]);
+  }, [handleNext, isTransitioning]);
+
+  // 초기 이미지들 프리로드
+  useEffect(() => {
+    movies?.forEach((movie) => {
+      const url = movie.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+        : '/api/placeholder/1920/1080';
+      preloadImage(url);
+    });
+  }, [movies, preloadImage]);
 
   if (!movies?.length) return null;
 
+  const getCurrentImageUrl = (index) => {
+    return movies[index].backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movies[index].backdrop_path}`
+      : '/api/placeholder/1920/1080';
+  };
+
   return (
     <div className="relative h-[70vh] w-full overflow-hidden">
+      {/* 현재 이미지 */}
       <div
-        className="absolute inset-0 w-full h-full transition-opacity duration-500"
-        style={{
-          opacity: isTransitioning ? 0 : 1
-        }}
+        className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
+          isTransitioning ? 'opacity-0' : 'opacity-100'
+        }`}
       >
         <div className="relative w-full h-full">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url(${movies[currentIndex].backdrop_path 
-                ? `https://image.tmdb.org/t/p/original${movies[currentIndex].backdrop_path}`
-                : '/api/placeholder/1920/1080'})`,
+              backgroundImage: `url(${getCurrentImageUrl(currentIndex)})`,
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
@@ -110,6 +169,18 @@ const TrendingBanner = ({ movies }) => {
         </div>
       </div>
 
+      {/* 다음 이미지 (프리로드) */}
+      {nextIndex !== null && (
+        <div className="absolute inset-0 w-full h-full opacity-0">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(${getCurrentImageUrl(nextIndex)})`,
+            }}
+          />
+        </div>
+      )}
+
       <button
         onClick={handlePrev}
         className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
@@ -127,7 +198,7 @@ const TrendingBanner = ({ movies }) => {
         {movies.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentIndex(index)}
+            onClick={() => transition(index)}
             className={`w-2 h-2 rounded-full transition-colors ${
               index === currentIndex ? 'bg-white' : 'bg-white/50'
             }`}
@@ -149,6 +220,7 @@ const lucideIcons = {
 
 const MainPage = () => {
   const dispatch = useDispatch();
+  const { apiKey, isAuthenticated, isLoading: authLoading } = useAuth();
   const {
     popularMovies,
     latestMovies,
@@ -168,8 +240,6 @@ const MainPage = () => {
     error
   } = useSelector(state => state.main);
 
-  const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
-
   useEffect(() => {
     const savedMovies = localStorage.getItem(RECOMMENDED_MOVIES_KEY);
     if (savedMovies) {
@@ -188,11 +258,15 @@ const MainPage = () => {
 
   useEffect(() => {
     const fetchAllMovies = async () => {
+      if (!authLoading && !isAuthenticated) {
+        return;
+      }
+
       dispatch(setLoading(true));
       dispatch(setError(null));
       
       try {
-        if (!API_KEY) {
+        if (!apiKey) {
           throw new Error(STATUS_MESSAGES.apiKeyError);
         }
 
@@ -219,19 +293,19 @@ const MainPage = () => {
         };
 
         const requests = [
-          fetchAndProcessMovies(getURL4PopularMovies(API_KEY), 'popularMovies'),
-          fetchAndProcessMovies(getURL4ReleaseMovies(API_KEY), 'latestMovies'),
-          fetchAndProcessMovies(getURL4GenreMovies(API_KEY, '28'), 'actionMovies'),
-          fetchAndProcessMovies(getURL4TopRatedMovies(API_KEY), 'topRatedMovies'),
-          fetchAndProcessMovies(getURL4UpcomingMovies(API_KEY), 'upcomingMovies'),
-          fetchAndProcessMovies(getURL4ComedyMovies(API_KEY), 'comedyMovies'),
-          fetchAndProcessMovies(getURL4HorrorMovies(API_KEY), 'horrorMovies'),
-          fetchAndProcessMovies(getURL4AnimationMovies(API_KEY), 'animationMovies'),
-          fetchAndProcessMovies(getURL4RomanceMovies(API_KEY), 'romanceMovies'),
-          fetchAndProcessMovies(getURL4DocumentaryMovies(API_KEY), 'documentaryMovies'),
-          fetchAndProcessMovies(getURL4KidsMovies(API_KEY), 'kidsMovies'),
-          fetchAndProcessMovies(getURL4ThisWeekTrendingMovies(API_KEY), 'trendingMovies'),
-          fetchAndProcessMovies(getURL4HighBudgetMovies(API_KEY), 'highBudgetMovies')
+          fetchAndProcessMovies(getURL4PopularMovies(apiKey), 'popularMovies'),
+          fetchAndProcessMovies(getURL4ReleaseMovies(apiKey), 'latestMovies'),
+          fetchAndProcessMovies(getURL4GenreMovies(apiKey, '28'), 'actionMovies'),
+          fetchAndProcessMovies(getURL4TopRatedMovies(apiKey), 'topRatedMovies'),
+          fetchAndProcessMovies(getURL4UpcomingMovies(apiKey), 'upcomingMovies'),
+          fetchAndProcessMovies(getURL4ComedyMovies(apiKey), 'comedyMovies'),
+          fetchAndProcessMovies(getURL4HorrorMovies(apiKey), 'horrorMovies'),
+          fetchAndProcessMovies(getURL4AnimationMovies(apiKey), 'animationMovies'),
+          fetchAndProcessMovies(getURL4RomanceMovies(apiKey), 'romanceMovies'),
+          fetchAndProcessMovies(getURL4DocumentaryMovies(apiKey), 'documentaryMovies'),
+          fetchAndProcessMovies(getURL4KidsMovies(apiKey), 'kidsMovies'),
+          fetchAndProcessMovies(getURL4ThisWeekTrendingMovies(apiKey), 'trendingMovies'),
+          fetchAndProcessMovies(getURL4HighBudgetMovies(apiKey), 'highBudgetMovies')
         ];
 
         await Promise.all(requests);
@@ -244,14 +318,18 @@ const MainPage = () => {
     };
 
     fetchAllMovies();
-  }, [API_KEY, dispatch]);
+  }, [apiKey, dispatch, authLoading, isAuthenticated]);
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className={STYLES.loadingSpinner}></div>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   if (error) {
