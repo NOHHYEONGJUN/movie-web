@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Heart, Star, Calendar, TrendingUp, Zap, Film, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth'; // 추가
 import Header from '../components/common/header';
 import MovieSection from '../components/main/MovieSection';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
@@ -149,6 +150,7 @@ const lucideIcons = {
 
 const MainPage = () => {
   const dispatch = useDispatch();
+  const { apiKey, isAuthenticated, isLoading: authLoading } = useAuth(); // useAuth 사용
   const {
     popularMovies,
     latestMovies,
@@ -168,8 +170,6 @@ const MainPage = () => {
     error
   } = useSelector(state => state.main);
 
-  const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
-
   useEffect(() => {
     const savedMovies = localStorage.getItem(RECOMMENDED_MOVIES_KEY);
     if (savedMovies) {
@@ -188,11 +188,16 @@ const MainPage = () => {
 
   useEffect(() => {
     const fetchAllMovies = async () => {
+      // 인증 로딩이 완료되고 인증되지 않은 경우 리턴
+      if (!authLoading && !isAuthenticated) {
+        return;
+      }
+
       dispatch(setLoading(true));
       dispatch(setError(null));
       
       try {
-        if (!API_KEY) {
+        if (!apiKey) {
           throw new Error(STATUS_MESSAGES.apiKeyError);
         }
 
@@ -219,19 +224,19 @@ const MainPage = () => {
         };
 
         const requests = [
-          fetchAndProcessMovies(getURL4PopularMovies(API_KEY), 'popularMovies'),
-          fetchAndProcessMovies(getURL4ReleaseMovies(API_KEY), 'latestMovies'),
-          fetchAndProcessMovies(getURL4GenreMovies(API_KEY, '28'), 'actionMovies'),
-          fetchAndProcessMovies(getURL4TopRatedMovies(API_KEY), 'topRatedMovies'),
-          fetchAndProcessMovies(getURL4UpcomingMovies(API_KEY), 'upcomingMovies'),
-          fetchAndProcessMovies(getURL4ComedyMovies(API_KEY), 'comedyMovies'),
-          fetchAndProcessMovies(getURL4HorrorMovies(API_KEY), 'horrorMovies'),
-          fetchAndProcessMovies(getURL4AnimationMovies(API_KEY), 'animationMovies'),
-          fetchAndProcessMovies(getURL4RomanceMovies(API_KEY), 'romanceMovies'),
-          fetchAndProcessMovies(getURL4DocumentaryMovies(API_KEY), 'documentaryMovies'),
-          fetchAndProcessMovies(getURL4KidsMovies(API_KEY), 'kidsMovies'),
-          fetchAndProcessMovies(getURL4ThisWeekTrendingMovies(API_KEY), 'trendingMovies'),
-          fetchAndProcessMovies(getURL4HighBudgetMovies(API_KEY), 'highBudgetMovies')
+          fetchAndProcessMovies(getURL4PopularMovies(apiKey), 'popularMovies'),
+          fetchAndProcessMovies(getURL4ReleaseMovies(apiKey), 'latestMovies'),
+          fetchAndProcessMovies(getURL4GenreMovies(apiKey, '28'), 'actionMovies'),
+          fetchAndProcessMovies(getURL4TopRatedMovies(apiKey), 'topRatedMovies'),
+          fetchAndProcessMovies(getURL4UpcomingMovies(apiKey), 'upcomingMovies'),
+          fetchAndProcessMovies(getURL4ComedyMovies(apiKey), 'comedyMovies'),
+          fetchAndProcessMovies(getURL4HorrorMovies(apiKey), 'horrorMovies'),
+          fetchAndProcessMovies(getURL4AnimationMovies(apiKey), 'animationMovies'),
+          fetchAndProcessMovies(getURL4RomanceMovies(apiKey), 'romanceMovies'),
+          fetchAndProcessMovies(getURL4DocumentaryMovies(apiKey), 'documentaryMovies'),
+          fetchAndProcessMovies(getURL4KidsMovies(apiKey), 'kidsMovies'),
+          fetchAndProcessMovies(getURL4ThisWeekTrendingMovies(apiKey), 'trendingMovies'),
+          fetchAndProcessMovies(getURL4HighBudgetMovies(apiKey), 'highBudgetMovies')
         ];
 
         await Promise.all(requests);
@@ -244,14 +249,18 @@ const MainPage = () => {
     };
 
     fetchAllMovies();
-  }, [API_KEY, dispatch]);
+  }, [apiKey, dispatch, authLoading, isAuthenticated]);
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className={STYLES.loadingSpinner}></div>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null; // useAuth 내부에서 자동으로 리디렉션 처리
   }
 
   if (error) {

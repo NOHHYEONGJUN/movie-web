@@ -16,12 +16,10 @@ import {
   SORT_OPTIONS 
 } from '../constants/movieConstants';
 
-// TMDB API 설정
-const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 const SearchPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, apiKey, isLoading: authLoading } = useAuth();
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -31,7 +29,6 @@ const SearchPage = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
   
-  // 검색 관련 상태들을 로컬 스토리지와 연동
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [ratingRange, setRatingRange] = useState([0, 10]);
@@ -43,37 +40,31 @@ const SearchPage = () => {
   
   const observer = useRef();
 
-  // 초기 데이터 로드
   useEffect(() => {
-    // 저장된 영화 로드
     const savedMovies = localStorage.getItem(RECOMMENDED_MOVIES_KEY);
     if (savedMovies) {
       setRecommendedMovies(JSON.parse(savedMovies));
     }
 
-    // 마지막 검색 설정 로드
     const lastSettings = storage.getLastSearchSettings();
     if (lastSettings) {
-      setSearchQuery(lastSettings.query);
-      setSelectedGenres(lastSettings.genres);
-      setRatingRange(lastSettings.rating);
-      setYearRange(lastSettings.year);
-      setSortBy(lastSettings.sortBy);
+      setSearchQuery(lastSettings.query || '');
+      setSelectedGenres(lastSettings.genres || []);
+      setRatingRange(lastSettings.rating || [0, 10]);
+      setYearRange(lastSettings.year || [1900, new Date().getFullYear()]);
+      setSortBy(lastSettings.sortBy || 'popularity.desc');
     }
 
-    // 검색 기록 및 필터 로드
     setSearchHistory(storage.getSearchHistory());
     setRecentFilters(storage.getRecentFilters());
   }, []);
 
-  // 검색 기록 저장
   const saveSearchHistory = useCallback((query) => {
     if (!query.trim()) return;
     const newHistory = storage.addSearchHistory(query);
     setSearchHistory(newHistory);
   }, []);
 
-  // 필터 설정 저장
   const saveFilterSettings = useCallback(() => {
     const currentFilter = {
       genres: selectedGenres,
@@ -92,13 +83,18 @@ const SearchPage = () => {
   }, [selectedGenres, ratingRange, yearRange, sortBy, searchQuery]);
 
   const fetchMovies = useCallback(async (pageNum) => {
+    if (!apiKey) {
+      setError('API 키가 설정되지 않았습니다.');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       let url = searchQuery
-        ? `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${searchQuery}&language=ko-KR&page=${pageNum}`
-        : `${BASE_URL}/discover/movie?api_key=${API_KEY}&language=ko-KR&page=${pageNum}`;
+        ? `${BASE_URL}/search/movie?api_key=${apiKey}&query=${searchQuery}&language=ko-KR&page=${pageNum}`
+        : `${BASE_URL}/discover/movie?api_key=${apiKey}&language=ko-KR&page=${pageNum}`;
 
       url += `&sort_by=${sortBy}`;
       if (selectedGenres.length) {
@@ -109,6 +105,10 @@ const SearchPage = () => {
 
       const response = await fetch(url);
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.status_message || '영화 데이터를 불러오는데 실패했습니다.');
+      }
 
       if (searchQuery) {
         saveSearchHistory(searchQuery);
@@ -134,12 +134,12 @@ const SearchPage = () => {
       setTotalPages(data.total_pages);
       setHasMore(data.page < data.total_pages);
     } catch (err) {
-      setError('영화 데이터를 불러오는데 실패했습니다.');
+      setError(err.message || '영화 데이터를 불러오는데 실패했습니다.');
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode, saveSearchHistory, saveFilterSettings]);
+  }, [searchQuery, selectedGenres, ratingRange, yearRange, sortBy, viewMode, saveSearchHistory, saveFilterSettings, apiKey]);
 
   const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
@@ -149,7 +149,7 @@ const SearchPage = () => {
   const handleViewModeChange = useCallback((newMode) => {
     setViewMode(newMode);
     setPage(1);
-    window.scrollTo(0, 0);
+    setMovies([]);
   }, []);
 
   const resetFilters = useCallback(() => {
@@ -166,7 +166,6 @@ const SearchPage = () => {
   const toggleRecommendation = useCallback((movie, e) => {
     if (e) e.stopPropagation();
     if (!isAuthenticated) {
-      // TODO: 로그인 필요 알림 처리
       return;
     }
     setRecommendedMovies(prev => {
@@ -202,8 +201,10 @@ const SearchPage = () => {
   }, [viewMode]);
 
   useEffect(() => {
-    fetchMovies(page);
-  }, [page, fetchMovies]);
+    if (!authLoading && isAuthenticated) {
+      fetchMovies(page);
+    }
+  }, [page, fetchMovies, authLoading, isAuthenticated]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -278,13 +279,21 @@ const SearchPage = () => {
     isLoading,
     page,
     viewMode,
-    movies,  // 추가된 의존성
+    movies,
     toggleRecommendation,
     isMovieRecommended,
     lastMovieElementRef,
     totalPages,
     handlePageChange
   ]);
+
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <PageLayout
