@@ -1,32 +1,7 @@
 
 # Movie Search Application (Like NETFLIX)
 
-영화 검색 및 위시리스트 관리 웹 애플리케이션입니다.
-
-&nbsp;
-
-🎬 페이지 프리뷰
-메인 페이지
-최신 영화와 인기 영화를 확인할 수 있는 메인 페이지입니다.
-<img src="/public/images/main.png" alt="메인 페이지">
-
-
-검색 페이지
-원하는 영화를 검색하고 결과를 그리드/테이블 뷰로 확인할 수 있습니다.
-
-<img src="/public/images/search-grid.png" alt="검색 페이지(그리드)">
-그리드 뷰
-
-<img src="/public/images/search-table.png" alt="검색 페이지(테이블)">
-테이블 뷰
-
-인기 영화 페이지
-현재 인기 있는 영화 목록을 확인할 수 있습니다.
-<img src="/public/images/popular.png" alt="인기 영화 페이지">
-
-위시리스트 페이지
-사용자가 저장한 영화 목록을 관리할 수 있습니다.
-<img src="/public/images/wishlist.png" alt="위시리스트 페이지">
+Netflix와 유사한 영화 검색 및 위시리스트 관리 웹 애플리케이션
 
 &nbsp;
 
@@ -49,6 +24,40 @@
 - 반응형 디자인
 &nbsp;
 
+## 🎬 페이지 프리뷰
+
+### 메인 페이지
+
+최신 영화와 인기 영화를 확인할 수 있는 메인 페이지입니다.
+<img src="/public/images/home.png" alt="메인 페이지">
+
+&nbsp;
+
+### 검색 페이지
+
+원하는 영화를 검색하고 결과를 그리드/테이블 뷰로 확인할 수 있습니다.
+
+<img src="/public/images/search-grid.png" alt="검색 페이지(그리드)">
+#### 그리드 뷰
+
+<img src="/public/images/search-table.png" alt="검색 페이지(테이블)">
+#### 테이블 뷰
+
+&nbsp;
+
+### 인기 영화 
+
+현재 인기 있는 영화 목록을 확인할 수 있습니다.
+<img src="/public/images/popular.png" alt="인기 영화 페이지">
+
+&nbsp;
+
+### 위시리스트 페이지
+사용자가 저장한 영화 목록을 관리할 수 있습니다.
+<img src="/public/images/wishlist.png" alt="위시리스트 페이지">
+
+&nbsp;
+
 ## 🔧 설치 및 실행
 
 ### 필수 요구사항
@@ -60,10 +69,10 @@
 
 ```bash
 # 저장소 클론
-git clone https://github.com/username/movie-search-app.git
+git clone https://github.com/NOHHYEONGJUN/movie-web.git
 
 # 디렉토리 이동
-cd movie-search-app
+cd movie-web
 
 # 의존성 설치
 npm install
@@ -99,10 +108,10 @@ src/
 
 ### 코딩 컨벤션
 
-- 컴포넌트는 함수형 컴포넌트로 작성
-- 파일명은 PascalCase로 작성 (예: MovieCard.js)
-- 상수는 UPPER_SNAKE_CASE로 작성
-- 변수와 함수는 camelCase로 작성
+- 함수형 컴포넌트 사용
+- 파일명: PascalCase (예: MovieCard.js)
+- 상수: UPPER_SNAKE_CASE
+- 변수/함수: camelCase
 
 &nbsp;
 
@@ -112,7 +121,7 @@ src/
 
 - `main`: 배포 브랜치
 - `develop`: 개발 브랜치
-- `feature/*`: 기능 추가 브랜치
+- `feature/*`: 기능 개발 브랜치
 
 #### 커밋 메시지 컨벤션
 
