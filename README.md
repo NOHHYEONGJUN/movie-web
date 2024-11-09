@@ -65,6 +65,8 @@
 
 <img src="/public/images/wishlist.png" alt="위시리스트 페이지">
 
+&nbsp;
+
 ### 모바일 최적화
 
 반응형 구현을 통해 모바일 사용자 경험을 개선했습니다.
